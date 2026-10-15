@@ -13,5 +13,8 @@ First public Syllark release.
 - English source documentation, automated regression/security checks, dependency
   inventory, third-party license texts, and LGPL-only shared media libraries.
 
+- Parsed TikTok host validation rejects misleading domains and off-site share
+  redirects before making a public request.
+
 Existing local settings keep their legacy storage location for compatibility.
 See [validation](docs/VALIDATION.md) for measured coverage and known limitations.

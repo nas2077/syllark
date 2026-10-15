@@ -15,6 +15,7 @@ import unicodedata
 import tiktok_public
 from collections import deque
 from concurrent.futures import ThreadPoolExecutor
+from urllib.parse import urljoin, urlsplit
 
 # --- three things that must happen BEFORE importing anything whisper-related ---
 
@@ -319,15 +320,30 @@ def _atomic_write(path, text, encoding="utf-8", newline=None):
     os.replace(temporary, path)
 
 
-_SHORT_LINK = re.compile(r"(?:^|//)(?:vm|vt)\.tiktok\.com/|tiktok\.com/t/", re.I)
+def _tiktok_url(text):
+    """Accept HTTP(S) URLs on TikTok hosts, without userinfo or custom ports."""
+    if not text or any(c.isspace() or c == "\\" for c in text):
+        return None
+    candidate = text if re.match(r"https?://", text, re.I) else "https://" + text
+    try:
+        parts = urlsplit(candidate)
+        host = parts.hostname or ""
+        if (parts.scheme not in ("http", "https") or parts.username is not None
+                or parts.password is not None or parts.port not in (None, 80, 443)
+                or not (host == "tiktok.com" or host.endswith(".tiktok.com"))):
+            return None
+        return parts.geturl()
+    except ValueError:
+        return None
 
 
 def _resolve_short_link(url):
     """Stop at a video's canonical redirect before the webpage can demand login."""
-    from urllib.parse import urljoin, urlparse
     from curl_cffi import requests
 
-    current = url if re.match(r"https?://", url) else "https://" + url
+    current = _tiktok_url(url)
+    if current is None:
+        raise TikTokError("invalid public TikTok URL")
     try:
         with requests.Session(impersonate="chrome") as session:
             for _ in range(5):
@@ -335,9 +351,8 @@ def _resolve_short_link(url):
                 location = response.headers.get("Location")
                 if not location:
                     return current
-                target = urljoin(current, location)
-                host = (urlparse(target).hostname or "").lower()
-                if host != "tiktok.com" and not host.endswith(".tiktok.com"):
+                target = _tiktok_url(urljoin(current, location))
+                if target is None:
                     return current
                 if is_video_link(target):
                     return target
@@ -348,32 +363,13 @@ def _resolve_short_link(url):
 
 
 def normalize_profile(text, _resolve=True):
-    """
-    accepts pretty much anything:
-      @someone  ·  tiktok.com/@someone  ·  https://www.tiktok.com/@someone?lang=en
-      the link of a single video (the profile is derived from it)
-      a share link such as vm.tiktok.com/ZMabc123/
-      tiktokuser:MS4wLjABAAAA...
-    returns (url_for_ytdlp, readable_label, video_link_or_None).
-
-    the video link is kept because it is the way out when tiktok refuses to
-    give the profile's internal id: it can be read off one of its videos.
-    """
+    """Return (profile URL, label, video URL) for a handle or public TikTok URL."""
     t = (text or "").strip()
     if not t:
         raise TikTokError("you did not paste anything")
 
     if t.startswith("tiktokuser:"):
         return t, t, None
-
-    if _resolve and _SHORT_LINK.search(t):
-        return normalize_profile(_resolve_short_link(t), _resolve=False)
-
-    video = t if is_video_link(t) else None
-
-    m = re.search(r"tiktok\.com/@([\w.\-]+)", t)
-    if m:
-        return f"https://www.tiktok.com/@{m.group(1)}", "@" + m.group(1), video
 
     if t.startswith("@"):
         handle = t[1:].split("?")[0].split("/")[0]
@@ -383,15 +379,24 @@ def normalize_profile(text, _resolve=True):
     if re.fullmatch(r"[\w.\-]{2,30}", t):
         return f"https://www.tiktok.com/@{t}", "@" + t, None
 
-    if "tiktok.com" in t:
-        # some other tiktok link: let it through, yt-dlp deals with it
-        return t, t, None
+    url = _tiktok_url(t)
+    if url:
+        parts = urlsplit(url)
+        if _resolve and (parts.hostname in ("vm.tiktok.com", "vt.tiktok.com") or parts.path.startswith("/t/")):
+            return normalize_profile(_resolve_short_link(url), _resolve=False)
+        video = url if is_video_link(url) else None
+        match = re.match(r"/@([\w.\-]+)", parts.path)
+        if match:
+            handle = match.group(1)
+            return f"https://www.tiktok.com/@{handle}", "@" + handle, video
+        return url, url, None
 
     raise TikTokError(f"'{t[:60]}' does not look like a tiktok profile")
 
 
 def is_video_link(text):
-    return bool(re.search(r"tiktok\.com/@[\w.\-]+/video/\d+", text or ""))
+    url = _tiktok_url(text)
+    return bool(url and re.fullmatch(r"/@[\w.\-]+/video/\d+/?", urlsplit(url).path))
 
 
 # ------------------------------------------------------------------ public TikTok access

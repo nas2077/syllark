@@ -22,6 +22,39 @@ def context(value):
 
 
 class AnonymousTests(unittest.TestCase):
+    def test_trusted_profile_url_variants(self):
+        for url in ("tiktok.com/@sample", "https://TIKTOK.COM/@sample", "http://www.tiktok.com/@sample?lang=en"):
+            with self.subTest(url=url):
+                self.assertEqual(core.normalize_profile(url)[:2], ("https://www.tiktok.com/@sample", "@sample"))
+
+    def test_spoofed_or_malformed_hosts_are_refused(self):
+        urls = ("https://tiktok.com.evil.example/@sample", "https://eviltiktok.com/@sample",
+                "https://example.test/?next=tiktok.com/@sample", "https://tiktok.com@example.test/@sample",
+                "https://example.test/tiktok.com/@sample", "https://www.tiktok.com:8080/@sample",
+                "https://user@www.tiktok.com/@sample", "https://www.tiktok.com\\@example.test/@sample",
+                "file://www.tiktok.com/@sample", "https://www.tiktok.com\n.example.test/@sample")
+        for url in urls:
+            with self.subTest(url=url), self.assertRaises(core.TikTokError):
+                core.normalize_profile(url)
+
+    def test_invalid_short_link_never_makes_a_request(self):
+        with patch.object(public.requests, "Session") as session, self.assertRaises(core.TikTokError):
+            core._resolve_short_link("https://example.test/?next=vm.tiktok.com/ABC/")
+        session.assert_not_called()
+
+    def test_video_detection_checks_host_and_path(self):
+        self.assertTrue(core.is_video_link(URL + "?lang=en"))
+        self.assertFalse(core.is_video_link("https://eviltiktok.com/@sample/video/123"))
+        self.assertFalse(core.is_video_link("https://www.tiktok.com/?next=/@sample/video/123"))
+
+    def test_share_redirect_stays_on_tiktok(self):
+        response = SimpleNamespace(headers={"Location": "https://tiktok.com.evil.example/@sample/video/123"})
+        session = MagicMock()
+        session.get.return_value = response
+        with patch.object(public.requests, "Session", return_value=context(session)):
+            self.assertEqual(core._resolve_short_link("https://vm.tiktok.com/ABC/"), "https://vm.tiktok.com/ABC/")
+        self.assertEqual(session.get.call_count, 1)
+
     def test_legacy_cookie_options_are_ignored(self):
         with patch("yt_dlp.cookies.extract_cookies_from_browser", side_effect=AssertionError("browser access")):
             with core._ydl("firefox", {"cookiesfrombrowser": ("firefox",), "cookiefile": "unused"}) as y:

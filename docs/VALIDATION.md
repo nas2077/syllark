@@ -16,7 +16,7 @@ dev\.venv\Scripts\python.exe dev\natural_contract_check.py
 dev\.venv\Scripts\python.exe dev\model_matrix_check.py
 ```
 
-The release preparation passed 55 core, 19 anonymous-access, 72 readability,
+The release preparation passed 55 core, 24 anonymous-access, 72 readability,
 and 10 native-contract checks. The matrix covered 10,080 export roundtrips,
 4,320 pipelines with **mocked recognition/media**, and 41 engine/cache contracts.
 These checks exercise application behavior, not speech-recognition quality.
@@ -59,7 +59,10 @@ reports are excluded from the source repository.
 
 ## Security and limits
 
-CodeQL and dependency auditing have separate workflow badges. The local Python
+CodeQL and dependency auditing have separate workflow badges. The first CodeQL
+run identified URL substring validation; it was replaced with parsed-host and
+scheme validation, with regressions for spoofed domains, userinfo, unsafe ports,
+and off-site redirects. The local Python
 audit found no known vulnerabilities in the pinned dependency set at preparation
 time. This does not audit every native DLL or prove absence of vulnerabilities.
 Checksums verify package integrity; this release has no Windows code-signing

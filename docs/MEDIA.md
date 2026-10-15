@@ -34,8 +34,10 @@ Build outputs and input archives stay under ignored `dev/media`.
 
 The BtbN tree contains the component source URLs, patches, configuration, and
 container build steps. Its relevant target is `win64`, variant `lgpl-shared`,
-release branch `8.1`; the FFmpeg commit is fixed by the lock file. Preserve these
-materials and source access with a release. Read the full LGPL/GPL terms in
+release branch `8.1`; the FFmpeg commit is fixed by the lock file. The release also retains source snapshots for FFmpeg, PyAV, and the BtbN build
+scripts; their revisions, original download URLs, and checksums are in
+[media-sources.json](media-sources.json). Preserve these materials and source
+access with a release. Read the full LGPL/GPL terms in
 `src/licenses` rather than treating a metadata label as a certification.
 
 ## Verification

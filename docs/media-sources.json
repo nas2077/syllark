@@ -1,0 +1,26 @@
+[
+  {
+    "repository": "FFmpeg/FFmpeg",
+    "revision": "46d899d7a02bc63237472cc4897258d5ddf274ac",
+    "url": "https://codeload.github.com/FFmpeg/FFmpeg/tar.gz/46d899d7a02bc63237472cc4897258d5ddf274ac",
+    "file": "FFmpeg-46d899d7a02b-source.tar.gz",
+    "sha256": "6626e1f622324597146a8cc90a89bb4c3529f7df55f0a8c998fde55ac5ae4161",
+    "bytes": 16923502
+  },
+  {
+    "repository": "BtbN/FFmpeg-Builds",
+    "revision": "63ac3265b0789ea16c7b1f8351cd2ad195a28722",
+    "url": "https://codeload.github.com/BtbN/FFmpeg-Builds/tar.gz/63ac3265b0789ea16c7b1f8351cd2ad195a28722",
+    "file": "FFmpeg-Builds-63ac3265b078-source.tar.gz",
+    "sha256": "4fd8856d5b207fce5c870a690aefc9a72b9a1943cfc79df8d5d327ec4612c9d2",
+    "bytes": 116749
+  },
+  {
+    "repository": "PyAV-Org/PyAV",
+    "revision": "7e3d950a8b72062502c1a60d672f8ca565313af5",
+    "url": "https://codeload.github.com/PyAV-Org/PyAV/tar.gz/7e3d950a8b72062502c1a60d672f8ca565313af5",
+    "file": "PyAV-7e3d950a8b72-source.tar.gz",
+    "sha256": "7441b86f5c9c6275239cc388dd319ac04c9c56fc03b25ce2dfd3252cb8f1432b",
+    "bytes": 255997
+  }
+]
