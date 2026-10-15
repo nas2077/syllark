@@ -1,0 +1,8 @@
+# windows scripts keep windows line endings whatever git is set to: cmd
+# misreads labels in a .bat with bare LF, and powershell 5.1 is happier too
+*.bat  text eol=crlf
+*.ps1  text eol=crlf
+
+# everything else: LF in the repository
+*      text=auto
+*.ico  binary

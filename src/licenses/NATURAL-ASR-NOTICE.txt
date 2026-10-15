@@ -1,0 +1,12 @@
+Natural transcription uses Qwen3-ASR 1.7B (Apache-2.0), SpeechBrain VoxLingua107 ECAPA (Apache-2.0), and transcribe.cpp 0.4.0 (MIT).
+
+Models run locally. Tested GGUF conversions by handy-computer:
+https://huggingface.co/handy-computer/Qwen3-ASR-1.7B-gguf
+https://huggingface.co/handy-computer/lang-id-voxlingua107-ecapa-gguf
+
+Original projects:
+https://github.com/QwenLM/Qwen3-ASR
+https://huggingface.co/speechbrain/lang-id-voxlingua107-ecapa
+https://github.com/handy-computer/transcribe.cpp
+
+The model weights download separately on first use. See the model repositories for training-data provenance and model notices. Native-library licenses are also retained in bundled package metadata.

@@ -1,0 +1,15 @@
+version: 2
+updates:
+  - package-ecosystem: pip
+    directory: /dev
+    schedule:
+      interval: weekly
+    groups:
+      native-runtime:
+        patterns:
+          - transcribe-cpp
+          - transcribe-cpp-native
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly

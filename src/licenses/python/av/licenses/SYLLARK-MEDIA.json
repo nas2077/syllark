@@ -1,0 +1,30 @@
+{
+  "pyav": {
+    "version": "18.1.0",
+    "wheel": "av-18.1.0-cp311-abi3-win_amd64.whl",
+    "url": "https://files.pythonhosted.org/packages/33/b4/76ba21e46704f632004276b85289a1582e95f5eff760436d6149875a1881/av-18.1.0-cp311-abi3-win_amd64.whl",
+    "sha256": "ea1480b7a8d5405cb5f382b344731bf125fd2c1c6fae3964f6c48595628387ff"
+  },
+  "ffmpeg": {
+    "version": "8.1.3-18-g46d899d7a0",
+    "archive": "ffmpeg-n8.1.3-18-g46d899d7a0-win64-lgpl-shared-8.1.zip",
+    "url": "https://github.com/BtbN/FFmpeg-Builds/releases/download/autobuild-2026-10-14-13-03/ffmpeg-n8.1.3-18-g46d899d7a0-win64-lgpl-shared-8.1.zip",
+    "sha256": "38dd3fb973c2e10723489e2173135d60f569953e70a04b885446175f9e9380d6",
+    "mirror_url": "https://github.com/nas2077/syllark/releases/download/v0.1.0/ffmpeg-n8.1.3-18-g46d899d7a0-win64-lgpl-shared-8.1.zip",
+    "build_repository": "https://github.com/BtbN/FFmpeg-Builds",
+    "build_revision": "63ac3265b0789ea16c7b1f8351cd2ad195a28722",
+    "source_revision": "46d899d7a0"
+  },
+  "modification": "Extension DLL import names repointed to LGPL shared FFmpeg libraries.",
+  "modified_extensions": 40,
+  "libraries": [
+    "avcodec-62.dll",
+    "avdevice-62.dll",
+    "avfilter-11.dll",
+    "avformat-62.dll",
+    "avutil-60.dll",
+    "swresample-6.dll",
+    "swscale-9.dll"
+  ],
+  "repacked_version": "18.1.0+lgpl.1"
+}

@@ -1,0 +1,414 @@
+[
+  {
+    "name": "anyio",
+    "version": "4.15.1",
+    "license": "MIT",
+    "upstream": "https://anyio.readthedocs.io/en/latest/",
+    "license_files": [
+      "src/licenses/python/anyio/licenses/LICENSE"
+    ]
+  },
+  {
+    "name": "av",
+    "version": "18.1.0+lgpl.1",
+    "license": "BSD-3-Clause",
+    "upstream": "https://github.com/PyAV-Org/PyAV/issues",
+    "license_files": [
+      "src/licenses/python/av/licenses/AUTHORS.rst",
+      "src/licenses/python/av/licenses/FFmpeg-LGPL-3.0.txt",
+      "src/licenses/python/av/licenses/LICENSE.txt",
+      "src/licenses/python/av/licenses/SYLLARK-MEDIA.json"
+    ]
+  },
+  {
+    "name": "bottle",
+    "version": "0.13.4",
+    "license": "MIT License",
+    "upstream": "http://bottlepy.org/",
+    "license_files": [
+      "src/licenses/python/bottle/licenses/LICENSE"
+    ]
+  },
+  {
+    "name": "brotli",
+    "version": "1.2.0",
+    "license": "MIT",
+    "upstream": "https://github.com/google/brotli",
+    "license_files": [
+      "src/licenses/python/brotli/licenses/LICENSE"
+    ]
+  },
+  {
+    "name": "certifi",
+    "version": "2026.7.22",
+    "license": "Mozilla Public License 2.0 (MPL 2.0)",
+    "upstream": "https://github.com/certifi/python-certifi",
+    "license_files": [
+      "src/licenses/python/certifi/licenses/LICENSE"
+    ]
+  },
+  {
+    "name": "cffi",
+    "version": "2.1.1",
+    "license": "MIT-0",
+    "upstream": "https://cffi.readthedocs.io/",
+    "license_files": [
+      "src/licenses/python/cffi/licenses/LICENSE"
+    ]
+  },
+  {
+    "name": "charset-normalizer",
+    "version": "3.5.2",
+    "license": "MIT",
+    "upstream": "https://github.com/jawah/charset_normalizer/blob/master/CHANGELOG.md",
+    "license_files": [
+      "src/licenses/python/charset-normalizer/licenses/LICENSE"
+    ]
+  },
+  {
+    "name": "click",
+    "version": "8.5.0",
+    "license": "BSD-3-Clause",
+    "upstream": "https://click.palletsprojects.com/page/changes/",
+    "license_files": [
+      "src/licenses/python/click/licenses/LICENSE.txt"
+    ]
+  },
+  {
+    "name": "clr-loader",
+    "version": "0.3.1",
+    "license": "See upstream license",
+    "upstream": "https://github.com/pythonnet/clr-loader",
+    "license_files": [
+      "src/licenses/python/clr-loader/licenses/LICENSE"
+    ]
+  },
+  {
+    "name": "colorama",
+    "version": "0.4.6",
+    "license": "BSD License",
+    "upstream": "https://github.com/tartley/colorama",
+    "license_files": [
+      "src/licenses/python/colorama/licenses/LICENSE.txt"
+    ]
+  },
+  {
+    "name": "ctranslate2",
+    "version": "4.8.3",
+    "license": "MIT",
+    "upstream": "https://opennmt.net",
+    "license_files": []
+  },
+  {
+    "name": "curl-cffi",
+    "version": "0.16.3",
+    "license": "MIT",
+    "upstream": "https://github.com/lexiforest/curl_cffi",
+    "license_files": [
+      "src/licenses/python/curl-cffi/licenses/LICENSE"
+    ]
+  },
+  {
+    "name": "faster-whisper",
+    "version": "1.2.1",
+    "license": "MIT License",
+    "upstream": "https://github.com/SYSTRAN/faster-whisper",
+    "license_files": [
+      "src/licenses/python/faster-whisper/LICENSE"
+    ]
+  },
+  {
+    "name": "filelock",
+    "version": "4.1.1",
+    "license": "MIT",
+    "upstream": "https://py-filelock.readthedocs.io",
+    "license_files": [
+      "src/licenses/python/filelock/licenses/LICENSE"
+    ]
+  },
+  {
+    "name": "flatbuffers",
+    "version": "25.12.19",
+    "license": "Apache Software License",
+    "upstream": "https://google.github.io/flatbuffers/",
+    "license_files": []
+  },
+  {
+    "name": "fsspec",
+    "version": "2026.9.0",
+    "license": "BSD-3-Clause",
+    "upstream": "https://filesystem-spec.readthedocs.io/en/latest/changelog.html",
+    "license_files": [
+      "src/licenses/python/fsspec/licenses/LICENSE"
+    ]
+  },
+  {
+    "name": "h11",
+    "version": "0.16.0",
+    "license": "MIT License",
+    "upstream": "https://github.com/python-hyper/h11",
+    "license_files": [
+      "src/licenses/python/h11/licenses/LICENSE.txt"
+    ]
+  },
+  {
+    "name": "hf-xet",
+    "version": "1.7.0",
+    "license": "Apache-2.0",
+    "upstream": "https://huggingface.co/docs/hub/xet/index",
+    "license_files": [
+      "src/licenses/python/hf-xet/licenses/LICENSE"
+    ]
+  },
+  {
+    "name": "httpcore2",
+    "version": "2.13.1",
+    "license": "BSD-3-Clause",
+    "upstream": "https://github.com/pydantic/httpx2/blob/main/src/httpcore2/CHANGELOG.md",
+    "license_files": [
+      "src/licenses/python/httpcore2/licenses/LICENSE.md"
+    ]
+  },
+  {
+    "name": "httpx2",
+    "version": "2.13.1",
+    "license": "BSD-3-Clause",
+    "upstream": "https://github.com/pydantic/httpx2/blob/main/src/httpx2/CHANGELOG.md",
+    "license_files": [
+      "src/licenses/python/httpx2/licenses/LICENSE.md"
+    ]
+  },
+  {
+    "name": "huggingface-hub",
+    "version": "2.2.0",
+    "license": "Apache Software License",
+    "upstream": "https://github.com/huggingface/huggingface_hub",
+    "license_files": [
+      "src/licenses/python/huggingface-hub/licenses/LICENSE"
+    ]
+  },
+  {
+    "name": "idna",
+    "version": "3.20",
+    "license": "BSD-3-Clause",
+    "upstream": "https://github.com/kjd/idna/blob/master/HISTORY.md",
+    "license_files": [
+      "src/licenses/python/idna/licenses/LICENSE.md"
+    ]
+  },
+  {
+    "name": "mutagen",
+    "version": "1.48.1",
+    "license": "GPL-2.0-or-later",
+    "upstream": "https://mutagen.readthedocs.io",
+    "license_files": [
+      "src/licenses/python/mutagen/licenses/COPYING"
+    ]
+  },
+  {
+    "name": "numpy",
+    "version": "2.5.4",
+    "license": "BSD-3-Clause AND 0BSD AND MIT AND Zlib AND CC0-1.0",
+    "upstream": "https://numpy.org",
+    "license_files": [
+      "src/licenses/python/numpy/licenses/LICENSE.txt",
+      "src/licenses/python/numpy/licenses/numpy/_core/include/numpy/libdivide/LICENSE.txt",
+      "src/licenses/python/numpy/licenses/numpy/_core/src/common/pythoncapi-compat/COPYING",
+      "src/licenses/python/numpy/licenses/numpy/_core/src/highway/LICENSE",
+      "src/licenses/python/numpy/licenses/numpy/_core/src/multiarray/dragon4_LICENSE.txt",
+      "src/licenses/python/numpy/licenses/numpy/_core/src/npysort/x86-simd-sort/LICENSE.md",
+      "src/licenses/python/numpy/licenses/numpy/_core/src/umath/svml/LICENSE",
+      "src/licenses/python/numpy/licenses/numpy/fft/pocketfft/LICENSE.md",
+      "src/licenses/python/numpy/licenses/numpy/linalg/lapack_lite/LICENSE.txt",
+      "src/licenses/python/numpy/licenses/numpy/ma/LICENSE",
+      "src/licenses/python/numpy/licenses/numpy/random/LICENSE.md",
+      "src/licenses/python/numpy/licenses/numpy/random/src/distributions/LICENSE.md",
+      "src/licenses/python/numpy/licenses/numpy/random/src/mt19937/LICENSE.md",
+      "src/licenses/python/numpy/licenses/numpy/random/src/pcg64/LICENSE.md",
+      "src/licenses/python/numpy/licenses/numpy/random/src/philox/LICENSE.md",
+      "src/licenses/python/numpy/licenses/numpy/random/src/sfc64/LICENSE.md",
+      "src/licenses/python/numpy/licenses/numpy/random/src/splitmix64/LICENSE.md"
+    ]
+  },
+  {
+    "name": "onnxruntime",
+    "version": "1.31.0",
+    "license": "MIT License",
+    "upstream": "https://onnxruntime.ai",
+    "license_files": []
+  },
+  {
+    "name": "packaging",
+    "version": "26.3",
+    "license": "Apache-2.0 OR BSD-2-Clause",
+    "upstream": "https://packaging.pypa.io/",
+    "license_files": [
+      "src/licenses/python/packaging/licenses/LICENSE",
+      "src/licenses/python/packaging/licenses/LICENSE.APACHE",
+      "src/licenses/python/packaging/licenses/LICENSE.BSD"
+    ]
+  },
+  {
+    "name": "protobuf",
+    "version": "7.36.2",
+    "license": "3-Clause BSD License",
+    "upstream": "https://developers.google.com/protocol-buffers/",
+    "license_files": [
+      "src/licenses/python/protobuf/LICENSE"
+    ]
+  },
+  {
+    "name": "proxy-tools",
+    "version": "0.1.0",
+    "license": "MIT License",
+    "upstream": "http://github.com/jtushman/proxy_tools",
+    "license_files": []
+  },
+  {
+    "name": "pycparser",
+    "version": "3.11",
+    "license": "BSD-3-Clause",
+    "upstream": "https://github.com/eliben/pycparser",
+    "license_files": [
+      "src/licenses/python/pycparser/licenses/LICENSE"
+    ]
+  },
+  {
+    "name": "pycryptodomex",
+    "version": "3.24.1",
+    "license": "BSD License, Public Domain",
+    "upstream": "https://www.pycryptodome.org",
+    "license_files": [
+      "src/licenses/python/pycryptodomex/LICENSE.rst"
+    ]
+  },
+  {
+    "name": "pythonnet",
+    "version": "3.2.1",
+    "license": "MIT",
+    "upstream": "https://pythonnet.github.io/",
+    "license_files": [
+      "src/licenses/python/pythonnet/licenses/AUTHORS.md",
+      "src/licenses/python/pythonnet/licenses/LICENSE"
+    ]
+  },
+  {
+    "name": "pywebview",
+    "version": "6.2.1",
+    "license": "BSD License",
+    "upstream": "https://pywebview.flowrl.com/",
+    "license_files": [
+      "src/licenses/python/pywebview/licenses/LICENSE"
+    ]
+  },
+  {
+    "name": "pyyaml",
+    "version": "6.0.3",
+    "license": "MIT License",
+    "upstream": "https://pyyaml.org/",
+    "license_files": [
+      "src/licenses/python/pyyaml/licenses/LICENSE"
+    ]
+  },
+  {
+    "name": "requests",
+    "version": "2.34.2",
+    "license": "Apache Software License",
+    "upstream": "https://requests.readthedocs.io",
+    "license_files": [
+      "src/licenses/python/requests/licenses/LICENSE",
+      "src/licenses/python/requests/licenses/NOTICE"
+    ]
+  },
+  {
+    "name": "tokenizers",
+    "version": "0.23.3",
+    "license": "Apache Software License",
+    "upstream": "https://github.com/huggingface/tokenizers",
+    "license_files": []
+  },
+  {
+    "name": "tqdm",
+    "version": "4.70.1",
+    "license": "MPL-2.0 AND MIT",
+    "upstream": "https://tqdm.github.io",
+    "license_files": [
+      "src/licenses/python/tqdm/licenses/LICENCE"
+    ]
+  },
+  {
+    "name": "transcribe-cpp",
+    "version": "0.4.0",
+    "license": "MIT",
+    "upstream": "https://github.com/handy-computer/transcribe.cpp",
+    "license_files": [
+      "src/licenses/python/transcribe-cpp/licenses/LICENSE"
+    ]
+  },
+  {
+    "name": "transcribe-cpp-native",
+    "version": "0.4.0",
+    "license": "MIT",
+    "upstream": "https://github.com/handy-computer/transcribe.cpp",
+    "license_files": [
+      "src/licenses/python/transcribe-cpp-native/licenses/LICENSE",
+      "src/licenses/python/transcribe-cpp-native/licenses/ggml/LICENSE",
+      "src/licenses/python/transcribe-cpp-native/licenses/src/third_party/miniz/LICENSE",
+      "src/licenses/python/transcribe-cpp-native/licenses/src/third_party/silero_vad/LICENSE"
+    ]
+  },
+  {
+    "name": "truststore",
+    "version": "0.10.5",
+    "license": "MIT",
+    "upstream": "https://truststore.readthedocs.io",
+    "license_files": [
+      "src/licenses/python/truststore/licenses/LICENSE"
+    ]
+  },
+  {
+    "name": "typing-extensions",
+    "version": "4.16.0",
+    "license": "PSF-2.0",
+    "upstream": "https://github.com/python/typing_extensions/issues",
+    "license_files": [
+      "src/licenses/python/typing-extensions/licenses/LICENSE"
+    ]
+  },
+  {
+    "name": "urllib3",
+    "version": "2.8.0",
+    "license": "MIT",
+    "upstream": "https://github.com/urllib3/urllib3/blob/main/CHANGES.rst",
+    "license_files": [
+      "src/licenses/python/urllib3/licenses/LICENSE.txt"
+    ]
+  },
+  {
+    "name": "websockets",
+    "version": "17.2",
+    "license": "BSD-3-Clause",
+    "upstream": "https://github.com/python-websockets/websockets",
+    "license_files": [
+      "src/licenses/python/websockets/licenses/LICENSE"
+    ]
+  },
+  {
+    "name": "yt-dlp",
+    "version": "2026.8.19",
+    "license": "Unlicense",
+    "upstream": "https://github.com/yt-dlp/yt-dlp#readme",
+    "license_files": [
+      "src/licenses/python/yt-dlp/licenses/LICENSE"
+    ]
+  },
+  {
+    "name": "yt-dlp-ejs",
+    "version": "0.8.0",
+    "license": "Unlicense AND MIT AND ISC",
+    "upstream": "https://github.com/yt-dlp/ejs#readme",
+    "license_files": [
+      "src/licenses/python/yt-dlp-ejs/licenses/LICENSE"
+    ]
+  }
+]

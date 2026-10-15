@@ -1,0 +1,74 @@
+{
+ "en":{
+  "About {p0} seconds left":{"one":"About {p0} second left"},
+  "About {p0} minutes left":{"one":"About {p0} minute left"},
+  " ({p0} words)":{"one":" ({p0} word)"},
+  "{p0} words{p1}":{"one":"{p0} word{p1}"},
+  "{p0} videos found":{"one":"{p0} video found"},
+  "{p0} videos found, still reading the list":{"one":"{p0} video found, still reading the list"},
+  "{p0} videos on the profile":{"one":"{p0} video on the profile"},
+  "found {p0} videos on @{p1}":{"one":"found {p0} video on @{p1}"},
+  "{p0} videos were already there, skipping them":{"one":"{p0} video was already there, skipping it"}
+ },
+ "it":{
+  "About {p0} seconds left":{"one":"Manca circa {p0} secondo"},
+  "About {p0} minutes left":{"one":"Manca circa {p0} minuto"},
+  " ({p0} words)":{"one":" ({p0} parola)"},
+  "{p0} words{p1}":{"one":"{p0} parola{p1}"},
+  " · {p0} failed":{"one":" · {p0} non riuscito"},
+  "{p0} videos found":{"one":"trovato {p0} video"},
+  "{p0} videos found, still reading the list":{"one":"trovato {p0} video, continuo a leggere l’elenco"},
+  "found {p0} videos on @{p1}":{"one":"trovato {p0} video su @{p1}"},
+  "{p0} videos were already there, skipping them":{"one":"{p0} video già presente: lo salto"}
+ },
+ "es":{
+  "About {p0} seconds left":{"one":"Queda aproximadamente {p0} segundo"},
+  "About {p0} minutes left":{"one":"Queda aproximadamente {p0} minuto"},
+  " ({p0} words)":{"one":" ({p0} palabra)"},
+  "{p0} words{p1}":{"one":"{p0} palabra{p1}"},
+  " · {p0} failed":{"one":" · {p0} fallido"},
+  "{p0} videos found":{"one":"se encontró {p0} vídeo"},
+  "{p0} videos found, still reading the list":{"one":"se encontró {p0} vídeo, la lista sigue cargándose"},
+  "{p0} videos on the profile":{"one":"{p0} vídeo en el perfil"},
+  "found {p0} videos on @{p1}":{"one":"se encontró {p0} vídeo en @{p1}"},
+  "{p0} videos were already there, skipping them":{"one":"{p0} vídeo ya guardado: se omite"}
+ },
+ "fr":{
+  "About {p0} seconds left":{"one":"Encore environ {p0} seconde"},
+  "About {p0} minutes left":{"one":"Encore environ {p0} minute"},
+  " ({p0} words)":{"one":" ({p0} mot)"},
+  "{p0} words{p1}":{"one":"{p0} mot{p1}"},
+  " · {p0} failed":{"one":" · {p0} échec"},
+  "{p0} videos found":{"one":"{p0} vidéo trouvée"},
+  "{p0} videos found, still reading the list":{"one":"{p0} vidéo trouvée, lecture de la liste en cours"},
+  "{p0} videos on the profile":{"one":"{p0} vidéo sur le profil"},
+  "found {p0} videos on @{p1}":{"one":"{p0} vidéo trouvée sur @{p1}"},
+  "{p0} videos were already there, skipping them":{"one":"{p0} vidéo déjà enregistrée : elle est ignorée"}
+ },
+ "de":{
+  "About {p0} seconds left":{"one":"Noch etwa {p0} Sekunde"},
+  "About {p0} minutes left":{"one":"Noch etwa {p0} Minute"},
+  " ({p0} words)":{"one":" ({p0} Wort)"},
+  "{p0} words{p1}":{"one":"{p0} Wort{p1}"},
+  "{p0} videos found":{"one":"{p0} Video gefunden"},
+  "{p0} videos found, still reading the list":{"one":"{p0} Video gefunden, die Liste wird weiter gelesen"},
+  "{p0} videos on the profile":{"one":"{p0} Video im Profil"},
+  "found {p0} videos on @{p1}":{"one":"{p0} Video auf @{p1} gefunden"},
+  "{p0} videos were already there, skipping them":{"one":"{p0} Video schon vorhanden: Es wird übersprungen"}
+ },
+ "pt-BR":{
+  "About {p0} seconds left":{"one":"Falta cerca de {p0} segundo"},
+  "About {p0} minutes left":{"one":"Falta cerca de {p0} minuto"},
+  " ({p0} words)":{"one":" ({p0} palavra)"},
+  "{p0} words{p1}":{"one":"{p0} palavra{p1}"},
+  " · {p0} failed":{"one":" · {p0} falha"},
+  "{p0} videos found":{"one":"{p0} vídeo encontrado"},
+  "{p0} videos found, still reading the list":{"one":"{p0} vídeo encontrado, a lista continua sendo carregada"},
+  "{p0} videos on the profile":{"one":"{p0} vídeo no perfil"},
+  "found {p0} videos on @{p1}":{"one":"{p0} vídeo encontrado em @{p1}"},
+  "{p0} videos were already there, skipping them":{"one":"{p0} vídeo já salvo: será pulado"}
+ },
+ "ru":{
+  "{p0} × {p1} threads":{"arg":"p1","one":"{p0} × {p1} поток","few":"{p0} × {p1} потока","many":"{p0} × {p1} потоков","other":"{p0} × {p1} потока"}
+ }
+}

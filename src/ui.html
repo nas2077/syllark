@@ -1,0 +1,1744 @@
+<!doctype html>
+<html lang="en" data-personality="workshop" data-density="compact" data-motion="quiet">
+<head>
+<meta charset="utf-8">
+<title>Syllark</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400..700&display=swap">
+<link rel="stylesheet" href="vendor/nas.css">
+<style>
+/* Nas v2 provides the palette, type, tactile controls and motion tokens.
+   These overrides adapt its components to a fixed desktop window. */
+:root{--veil:rgba(17,25,34,.80)}
+html,body{height:100%;overflow:hidden;scroll-behavior:auto}
+body{position:fixed;inset:0;-webkit-font-smoothing:antialiased;overflow:hidden;
+  font-variant-numeric:tabular-nums;user-select:none}
+button,input,select{font:inherit;color:inherit}
+p{margin:0}
+:focus-visible{outline:2px solid var(--text);outline-offset:3px;border-radius:4px}
+.n-button{white-space:nowrap}
+.n-button.small{font-size:14px;line-height:18px;padding:8px 14px}
+.n-button-theme .s-dark{display:block}.n-button-theme .s-light{display:none}
+@media(prefers-color-scheme:light){:root:not([data-theme="dark"]) .n-button-theme .s-dark{display:none}
+  :root:not([data-theme="dark"]) .n-button-theme .s-light{display:block}}
+:root[data-theme="light"] .n-button-theme .s-dark{display:none}
+:root[data-theme="light"] .n-button-theme .s-light{display:block}
+.n-switch{position:relative}
+.n-switch input{inset:0;width:100%;height:100%;margin:0;cursor:inherit;z-index:1}
+.n-switch input:disabled + .n-switch__track{opacity:.55;cursor:not-allowed}
+.n-field{line-height:20px;min-width:0}
+.n-field input,.n-field select{height:50px;width:100%;outline:0;user-select:text}
+.n-field input:disabled,.n-field select:disabled{color:var(--text-secondary);cursor:not-allowed}
+.n-field.small input,.n-field.small select{height:42px;padding:10px 14px;font-size:15px}
+.dropdown{position:relative}
+.dropdown select{appearance:none;-webkit-appearance:none;padding-right:44px;cursor:pointer;text-overflow:ellipsis}
+.dropdown select option{background:var(--background);color:var(--text)}
+.dropdown .chevron{position:absolute;right:16px;top:50%;transform:translateY(-50%);pointer-events:none;color:var(--text-secondary)}
+.n-card{min-width:0}
+.n-label{display:inline-flex;align-items:center;gap:8px;padding:4px 12px;
+  font-size:13px;line-height:18px;color:var(--text-secondary);white-space:nowrap}
+.face{image-rendering:pixelated;image-rendering:crisp-edges;display:block}
+
+/* ============================================================ the app */
+
+.app{height:100%;display:grid;grid-template-rows:72px minmax(0,1fr)}
+
+/* ---------- the bar: signature and name, the views, the theme ---------- */
+.toolbar{display:flex;align-items:center;gap:var(--space-4);padding-left:var(--space-4)}
+.brand{display:flex;align-items:center;gap:12px;height:72px;flex:1;min-width:0;
+  font-size:17px;line-height:24px;font-weight:600;letter-spacing:-.01em;-webkit-app-region:drag}
+.brand span{white-space:nowrap}
+.views{display:flex;align-items:center;gap:28px}
+.views button{background:none;border:0;padding:6px 0;cursor:pointer;
+  font-size:15px;line-height:20px;font-weight:500;color:var(--text-secondary);
+  display:flex;align-items:center;gap:6px}
+.views button:hover{color:var(--text)}
+.views button[aria-current=page]{color:var(--text);font-weight:600}
+.views .count{font-size:13px;font-weight:500;color:var(--text-secondary)}
+.drag-fill{flex:1;height:72px;-webkit-app-region:drag}
+.right{display:flex;align-items:flex-start;gap:var(--space-4);height:72px}
+.right .n-button-theme{margin-top:19px}
+.locale-shell{position:relative}
+.locale-menu{position:absolute;top:66px;right:0;z-index:60;width:280px;max-height:calc(100vh - 90px);
+  overflow-y:auto;padding:16px;gap:12px;direction:ltr}
+.locale-menu[hidden]{display:none}
+.locale-menu .n-field{display:flex}
+.locale-options{display:grid;gap:4px;max-height:360px;overflow-y:auto;min-height:0}
+.locale-option,.picker-option{display:flex;align-items:center;justify-content:space-between;gap:12px;
+  border:0;border-radius:8px;background:transparent;padding:10px 12px;cursor:pointer;text-align:start;
+  font-size:15px;line-height:22px}
+.locale-option:hover,.locale-option:focus-visible,.picker-option:hover:not(:disabled),.picker-option:focus-visible{background:var(--raised)}
+.locale-option[aria-checked=true],.picker-option[aria-selected=true]{box-shadow:var(--shadow-inset);color:var(--text);font-weight:600}
+.locale-option .selected,.picker-option .selected{width:6px;height:6px;background:var(--signature-ring);flex:none;visibility:hidden}
+.locale-option[aria-checked=true] .selected,.picker-option[aria-selected=true] .selected{visibility:visible}
+.picker-option:disabled{color:var(--text-secondary);opacity:.55;cursor:not-allowed}
+.picker-option > span:first-child{min-width:0;overflow-wrap:anywhere}
+.n-field .picker-trigger{font:400 17px/22px var(--font-sans);padding:14px 44px 14px 16px;
+  border:0;height:50px;width:100%;min-width:0;border-radius:var(--radius);background:var(--background);
+  color:var(--text);box-shadow:var(--shadow-inset);cursor:pointer;text-align:start}
+.n-field.small .picker-trigger{height:42px;padding-top:10px;padding-bottom:10px;font-size:15px}
+.picker-trigger > span{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.picker-trigger:disabled{color:var(--text-secondary);opacity:.55;cursor:not-allowed}
+.dropdown[data-open=true] .chevron{transform:translateY(-50%) rotate(180deg)}
+.dropdown .chevron{transition:transform .18s var(--spring)}
+.picker-popup.n-card{position:fixed;z-index:70;padding:16px;gap:12px;overflow:auto}
+.picker-options{position:relative;display:grid;gap:4px;max-height:360px;overflow:auto;min-height:0;flex:1}
+.picker-option{width:100%;flex:none}
+:root[dir=rtl] .n-field .picker-trigger{padding-right:16px;padding-left:44px}
+.sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+.toolbar{direction:ltr;gap:16px}
+.views{gap:4px;padding:5px;border-radius:calc(var(--radius) + 5px);box-shadow:var(--shadow-inset)}
+.views button{padding:8px 12px;border-radius:var(--radius);transition:background var(--duration-short),box-shadow var(--duration-short)}
+.views button[aria-current=page]{background:var(--raised);box-shadow:var(--shadow-button)}
+.brand{flex:1 1 auto}.drag-fill{flex:1 1 24px;min-width:12px}
+.right{gap:12px;flex:none}
+.hero .n-subtitle{max-width:700px}
+.session{flex-wrap:wrap}
+.heading{flex-wrap:wrap}
+.gv .over .n-button{white-space:normal}
+.launch-row{grid-template-columns:minmax(0,1fr) 170px auto}
+:root[dir=rtl] .views{direction:rtl}
+:root[dir=rtl] .locale-menu{direction:rtl}
+:root[dir=rtl] .dropdown .chevron{right:auto;left:16px}
+:root[dir=rtl] .dropdown select{padding-right:16px;padding-left:44px}
+.hero .n-display{direction:ltr}
+:root[dir=rtl] .folder-row input,:root[dir=rtl] .kv dd,#profile,#gal-profile,#folder{direction:ltr;text-align:start}
+@media(max-width:1100px){.views button{padding:8px 9px}.toolbar{gap:10px}.brand span{font-size:14px}.right{gap:10px}.drag-fill{flex:0 0 8px;min-width:8px}}
+.window-buttons{display:flex}
+.window-buttons button{width:46px;height:40px;border:0;background:none;color:var(--text-secondary);
+  display:grid;place-items:center;cursor:pointer}
+.window-buttons button:hover{background:var(--raised);color:var(--text)}
+.window-buttons button.close:hover{background:var(--action);color:var(--on-action)}
+
+/* ---------- the page ---------- */
+.pane{min-width:0;overflow-y:auto}
+.content{max-width:calc(var(--page-max) + 96px);margin:0 auto;padding:0 var(--space-6) var(--space-8)}
+.view{display:none}
+.view.on{display:block}
+.heading{display:flex;align-items:flex-end;gap:var(--space-3);margin:var(--space-6) 0 var(--space-4)}
+.heading .n-title{flex:1}
+section + section{margin-top:var(--section-space)}
+.content > .view{margin-top:0}
+
+/* ---------- a short introduction, with one living presence ---------- */
+.hero{display:grid;grid-template-columns:minmax(0,1fr) 224px;align-items:center;
+  column-gap:var(--space-4);padding-top:var(--space-4);min-height:240px}
+.hero-copy{grid-column:1;grid-row:1;min-width:0}
+.stage{grid-column:2;grid-row:1;width:224px;display:flex;justify-content:center}
+.hero .n-display{font-size:62px;line-height:1.04;max-width:660px}
+.dot{display:inline-block;width:10px;height:10px;background:var(--pixel-orange);margin-inline-start:5px}
+.hero .n-subtitle{margin-top:18px;max-width:560px;font-size:19px;line-height:28px}
+
+.launch{margin:var(--space-4) auto 0;padding:var(--card-space);border-radius:var(--radius-card);box-shadow:var(--shadow-card)}
+.launch-row{display:grid;grid-template-columns:minmax(0,1fr) 170px auto;gap:var(--space-3);align-items:end}
+.launch-row .n-button{height:50px}
+.session{display:flex;align-items:center;gap:10px;margin-top:var(--space-3);flex-wrap:wrap}
+.gallery-message:empty{display:none}
+.gallery-message{margin:0 0 var(--space-4);white-space:pre-line}
+.square{width:8px;height:8px;flex:none;background:var(--raised)}
+.square.ok{background:var(--pixel-orange)}
+.square.ko{background:var(--action)}
+.square.wait{background:var(--pixel-orange);animation:n-flash .3s steps(1) infinite}
+/* the first start's downloads: the loading squares, only while they run */
+.setup{display:flex;align-items:center;gap:var(--space-4);margin-top:var(--space-4);flex-wrap:wrap}
+.link{background:none;border:0;padding:0;cursor:pointer;color:var(--text);
+  font-size:14px;line-height:20px;font-weight:500;text-decoration:underline;text-underline-offset:3px;
+  text-decoration-color:var(--raised)}
+.link:hover{text-decoration-color:var(--text)}
+
+/* ---------- the notice: something went wrong ---------- */
+.notice{display:none;flex-direction:row;gap:var(--space-4);align-items:center;margin-top:var(--space-6)}
+.notice.on{display:flex}
+.notice .face{flex:none}
+.notice .txt{flex:1;min-width:0}
+.notice b{display:block;font-size:17px;line-height:24px;font-weight:600}
+.notice p{font-size:15px;line-height:22px;color:var(--text-secondary);margin-top:4px;white-space:pre-line;
+  user-select:text}
+
+/* ---------- options: two sunken boxes, one setting per line ---------- */
+.options{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:var(--space-4);align-items:start}
+.group-name{margin:0 0 10px 4px}
+.setting{display:flex;align-items:center;justify-content:space-between;gap:var(--space-4);min-height:72px;padding:12px 0}
+.setting > label:first-child,.setting > .name{min-width:0;flex:none;max-width:45%}
+.setting .setting-name{font-size:15px;line-height:22px;font-weight:500}
+.setting .note{font-size:13px;line-height:18px;color:var(--text-secondary)}
+.model-setting{flex-wrap:wrap;row-gap:8px}
+.model-explanation{flex-basis:100%;min-width:0}
+.setting .n-field{flex:1;max-width:300px}
+.setting .n-switch{justify-content:space-between;width:100%;gap:var(--space-4)}
+.setting > label.n-switch{max-width:none;flex:1}
+.setting .n-switch .setting-text{display:flex;flex-direction:column;min-width:0}
+.folder-row{display:flex;align-items:center;gap:var(--space-3);flex:1;min-width:0;justify-content:flex-end}
+.folder-row input{flex:1;min-width:0;border:0;background:none;padding:0;text-align:right;
+  font:400 14px/20px var(--font-mono);color:var(--text-secondary);text-overflow:ellipsis;outline:0}
+.device{margin-left:8px}
+
+/* A raised neutral selection leaves rust for the primary action. */
+.choice{display:inline-flex;gap:6px;padding:5px;border-radius:12px;box-shadow:var(--shadow-inset)}
+.choice button{min-width:64px;padding:7px 14px;border:0;border-radius:8px;cursor:pointer;
+  font:500 15px/20px var(--font-mono);background:transparent;color:var(--text-secondary);box-shadow:none;
+  transition:transform .18s var(--spring),box-shadow .18s}
+.choice button:hover{transform:translateY(-2px)}
+.choice button[aria-pressed=true]{background:var(--raised);color:var(--text);box-shadow:var(--shadow-button);
+  transform:none;font-weight:600}
+.choice button[aria-pressed=false]:hover{background:var(--raised);color:var(--text)}
+.choice button:active{transform:translateY(2px);box-shadow:none}
+.choice button:disabled{opacity:.55;cursor:not-allowed;transform:none}
+
+/* ---------- progress ---------- */
+.profile-head{display:flex;align-items:center;gap:var(--space-3);flex-wrap:wrap}
+.profile-head .who{flex:1;min-width:0}
+#handle{font-size:24px;line-height:30px;font-weight:600;letter-spacing:-.02em;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.run{display:flex;align-items:center;gap:var(--space-4);margin-top:var(--space-4);flex-wrap:wrap}
+.run .n-loading{flex:none}
+.run .status{min-width:0}
+#p-done{font-weight:600;color:var(--text)}
+.numbers{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:var(--space-3);margin-top:var(--space-4)}
+
+/* ---------- the list of videos and the details ---------- */
+.split{display:grid;grid-template-columns:minmax(0,1.55fr) minmax(340px,1fr);gap:var(--space-4);align-items:start}
+@media (max-width:1240px){.split{grid-template-columns:minmax(0,1fr)}}
+.box{border-radius:var(--radius-card);box-shadow:var(--shadow-inset);min-width:0;overflow:hidden}
+.box-head{display:flex;align-items:flex-end;gap:var(--space-3);padding:16px 20px 14px;flex-wrap:wrap}
+.filters{display:flex;gap:18px;padding-bottom:8px}
+.filter,.tab{background:none;border:0;padding:4px 0;cursor:pointer;font-size:14px;line-height:20px;font-weight:500;
+  color:var(--text-secondary);display:flex;align-items:center;gap:6px}
+.filter:hover,.tab:hover{color:var(--text)}
+.filter[aria-pressed=true],.tab[aria-selected=true]{color:var(--text);font-weight:600;
+  text-decoration:underline;text-decoration-color:var(--pixel-orange);text-decoration-thickness:2px;text-underline-offset:6px}
+.box-head .search{margin-left:auto;width:230px}
+.rows{max-height:520px;overflow-y:auto;padding:0 8px 8px;contain:layout paint style}
+/* with 575 rows in the list the browser recalculated style and layout for all
+   of them on every update, including the 560 off screen. content-visibility
+   tells it to skip the ones that are not visible; the height is fixed so the
+   scrollbar stays accurate. */
+.row{display:grid;grid-template-columns:52px minmax(0,1fr) 56px 150px 78px;gap:var(--space-3);align-items:center;
+  height:64px;padding:0 12px;border-radius:var(--radius);content-visibility:auto;contain-intrinsic-size:auto 64px}
+.row + .row{box-shadow:inset 0 1px 0 var(--raised)}
+.row:hover{background:var(--raised)}
+.row:hover,.row:hover + .row{box-shadow:none}
+.row.hidden{display:none}
+.num{font:400 13px/18px var(--font-mono);color:var(--text-secondary)}
+.ttl{min-width:0}
+.ttl .t{font-size:15px;line-height:22px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ttl .m{font-size:13px;line-height:18px;color:var(--text-secondary);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.dur{font-size:14px;color:var(--text-secondary);text-align:right}
+.state{display:flex;flex-direction:column;align-items:flex-start;gap:6px;min-width:0}
+.badge::before{content:"";width:8px;height:8px;flex:none;background:var(--raised)}
+.row[data-s=done] .badge::before{background:var(--pixel-orange)}
+.row[data-s=error] .badge::before{background:var(--action)}
+.row[data-s=skipped] .badge::before{background:var(--text-secondary)}
+.row[data-s=downloading] .badge,.row[data-s=transcribing] .badge{color:var(--text)}
+.row[data-s=downloading] .badge::before,.row[data-s=transcribing] .badge::before{
+  background:var(--pixel-orange);animation:n-flash .3s steps(1) infinite}
+/* the download of one video, in squares: four of them, filled as it goes */
+.minibar{display:none;width:84px;height:6px;background:repeating-linear-gradient(90deg,var(--raised) 0 18px,transparent 18px 22px)}
+.row[data-s=downloading] .minibar{display:block}
+.minibar > i{display:block;height:100%;width:0%;
+  background:repeating-linear-gradient(90deg,var(--pixel-orange) 0 18px,transparent 18px 22px)}
+.rowbtn{opacity:0}
+.row:hover .rowbtn,.rowbtn:focus-visible{opacity:1}
+
+.empty{display:flex;flex-direction:column;align-items:center;text-align:center;gap:6px;padding:var(--space-6) var(--space-4)}
+.empty.gone{display:none}
+.empty .face{margin-bottom:var(--space-3)}
+.empty b{font-size:17px;line-height:24px;font-weight:600}
+.empty p{font-size:15px;line-height:22px;color:var(--text-secondary);max-width:380px}
+.list-f{padding:12px 20px 16px;font-size:13px;line-height:18px;color:var(--text-secondary)}
+
+.tabs{display:flex;gap:18px;padding:16px 20px 12px}
+.tab .n{font-size:13px;color:var(--text-secondary);font-weight:500}
+/* the details are machine output: they go in the code block, dark in both themes */
+.logbox{height:420px;overflow-y:auto;margin:0 12px;padding:14px 16px;border-radius:var(--radius);
+  background:var(--code-background);color:var(--code-text);font:400 13px/20px var(--font-mono);user-select:text}
+.logbox.gone{display:none}
+.ln{display:grid;grid-template-columns:62px 10px minmax(0,1fr);gap:10px;align-items:baseline}
+.ln .t{opacity:.62}
+.ln .lv{width:8px;height:8px;background:#2c3b4d;align-self:center}
+.ln .lv.o{background:#ffb162}
+.ln .lv.w{background:#c9c1b1}
+.ln .lv.e{background:#a35139}
+.ln .m{word-break:break-word;white-space:pre-wrap}
+.errpane{display:none;height:420px;overflow-y:auto;margin:0 12px;padding:0 4px}
+.errpane.on{display:block}
+.errpane .item{padding:14px 4px}
+.errpane .item + .item{border-top:1px solid var(--raised)}
+.errpane .item .h{font-size:15px;line-height:22px;font-weight:600}
+.errpane .item p{font-size:14px;line-height:20px;color:var(--text-secondary);margin-top:2px;word-break:break-word;user-select:text}
+.log-f{display:flex;align-items:center;gap:var(--space-3);padding:12px 20px 16px;font-size:13px;line-height:18px;color:var(--text-secondary)}
+.log-f .sp{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+
+/* ---------- gallery ---------- */
+.gal-head{display:grid;grid-template-columns:minmax(0,1fr) 160px auto auto auto;gap:var(--space-3);align-items:end;margin-bottom:var(--space-6)}
+.gal-head .n-button{height:50px}
+.gal-loading{display:none;align-items:center;gap:var(--space-4);margin:calc(-1 * var(--space-4)) 0 var(--space-6);flex-wrap:wrap}
+.gal-loading.on{display:flex}
+.gal{display:grid;grid-template-columns:repeat(auto-fill,minmax(184px,1fr));gap:var(--space-6) var(--space-4)}
+/* a gallery of 575 videos means 575 covers: the ones off screen are not
+   drawn. "auto" makes it remember how tall they really were after the
+   first pass, so the scrollbar does not jump. */
+.gv{min-width:0;content-visibility:auto;contain-intrinsic-size:auto 400px}
+.gv .cover{position:relative;aspect-ratio:9/16;border-radius:var(--radius-card);overflow:hidden;
+  background:var(--raised);box-shadow:var(--shadow-card)}
+.gv .cover img{width:100%;height:100%;object-fit:cover;display:block;opacity:0;transition:opacity .22s steps(3)}
+.gv .cover img.alive{opacity:1}
+.gv .dur-b{position:absolute;right:10px;bottom:10px;padding:2px 8px;border-radius:6px;
+  background:var(--veil);color:#eee9df;font-size:13px;line-height:18px;font-weight:500}
+.gv .mark,.gv .fail{position:absolute;left:10px;top:10px;display:none;align-items:center;gap:8px;
+  padding:4px 10px;border-radius:var(--radius-round);background:var(--background);color:var(--text);
+  font-size:13px;line-height:18px;font-weight:500}
+.gv .mark::before,.gv .fail::before{content:"";width:8px;height:8px;background:var(--pixel-orange)}
+.gv .fail::before{background:var(--action)}
+.gv[data-f="1"] .mark{display:inline-flex}
+.gv[data-f="1"] .cover img{filter:grayscale(1) brightness(.62)}
+.gv[data-f="1"] .meta{opacity:.55}
+/* a failed card says so: before, it quietly went back to looking untouched
+   and the reason was only in the log of another view */
+.gv[data-e="1"] .fail{display:inline-flex}
+.gv[data-e="1"][data-f="1"] .fail{display:none}
+.gv .over{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:center;gap:12px;
+  padding:16px;opacity:0;background:var(--veil);transition:opacity .14s steps(2)}
+.gv:hover .over,.gv:focus-within .over{opacity:1}
+.gv .over .n-button{width:100%}
+.gv .over .n-button--secondary{background:#2c3b4d;color:#eee9df;box-shadow:0 3px 0 #111922,0 6px 14px rgba(0,0,0,.35)}
+.gv .work{position:absolute;inset:0;display:none;flex-direction:column;align-items:center;justify-content:center;gap:12px;
+  padding:16px;text-align:center;background:var(--veil);color:#eee9df;font-size:14px;line-height:20px;font-weight:500}
+.gv[data-s="downloading"] .work,.gv[data-s="transcribing"] .work,.gv[data-s="downloading_mp4"] .work,
+.gv[data-s="queued"] .work,.gv[data-s="queued_mp4"] .work{display:flex}
+.gv[data-s="downloading"] .over,.gv[data-s="transcribing"] .over,.gv[data-s="downloading_mp4"] .over,
+.gv[data-s="queued"] .over,.gv[data-s="queued_mp4"] .over{opacity:0!important;pointer-events:none}
+.gv .squares{display:none;gap:3px}
+.gv .squares > span{width:10px;height:6px;background:#2c3b4d}
+.gv .squares > span.full{background:#ffb162}
+.gv[data-s="downloading"] .squares,.gv[data-s="downloading_mp4"] .squares{display:flex}
+.gv .work .cancel{background:none;border:0;padding:0;cursor:pointer;color:#eee9df;font-size:13px;
+  text-decoration:underline;text-underline-offset:3px}
+.gv .meta{margin-top:14px;min-width:0}
+.gv .meta .t{font-size:15px;line-height:22px;font-weight:500;display:-webkit-box;-webkit-line-clamp:2;
+  -webkit-box-orient:vertical;overflow:hidden}
+.gv .meta .s{font-size:13px;line-height:18px;color:var(--text-secondary);margin-top:4px}
+
+/* the gallery options: a card that floats over the page */
+.menu-shell{position:relative}
+.menu{position:absolute;top:calc(100% + 14px);right:0;z-index:40;width:340px;display:none;
+  padding:8px var(--space-4)}
+.menu.on{display:flex}
+.menu .setting{min-height:64px}
+.menu-p{font-size:13px;line-height:18px;color:var(--text-secondary);padding:12px 0 8px}
+
+/* ---------- history and about ---------- */
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(290px,1fr));gap:var(--space-4)}
+.tile .buttons{display:flex;gap:var(--space-3);margin-top:var(--space-3);flex-wrap:wrap}
+.tile .n-card__title,.tile .n-card__label{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.kv{margin:0;padding:8px var(--space-4)}
+.kv > div{display:grid;grid-template-columns:220px minmax(0,1fr);gap:var(--space-4);padding:14px 0}
+.kv dt{font-size:15px;line-height:22px;font-weight:500}
+.kv dd{margin:0;font:400 14px/22px var(--font-mono);color:var(--text-secondary);word-break:break-all;user-select:text}
+.about-groups{display:grid;gap:var(--space-6)}
+.signature-foot{display:flex;align-items:center;justify-content:center;gap:10px;margin-top:var(--space-8)}
+
+.tabs.n-tabs{display:flex;gap:6px;margin:14px 16px 16px;padding:5px;width:max-content}
+.tabs.n-tabs .tab{padding:8px 14px;text-decoration:none;min-height:36px}
+:root[dir=rtl] .hero-copy{text-align:right}
+#commands .n-command{text-align:start}
+#commands .n-kbd{direction:ltr}
+#commands-search{width:100%}
+.command-tools{display:flex;gap:6px}
+.appearance{max-width:640px}
+.appearance .setting{min-height:80px}
+@media(max-width:1100px){.content{padding-inline:32px}.gal-head{grid-template-columns:minmax(0,1fr) 138px auto auto}.gal-head > #gal-folder{grid-column:1/-1;justify-self:end}.hero{column-gap:16px}.hero .n-display{font-size:48px}}
+
+::-webkit-scrollbar{width:12px;height:12px}
+::-webkit-scrollbar-thumb{background:var(--raised);border:4px solid transparent;background-clip:padding-box;border-radius:8px}
+::-webkit-scrollbar-track{background:transparent}
+</style>
+</head>
+<body>
+<div class="app">
+
+  <!-- ═══════════ the bar ═══════════ -->
+  <header class="toolbar">
+    <div class="brand pywebview-drag-region">
+      <svg class="n-pixel" width="32" height="32" viewBox="0 0 16 16" role="img" aria-label="Syllark"><rect x="9" y="2" width="1" height="1" fill="currentColor"/><rect x="10" y="2" width="1" height="1" fill="currentColor"/><rect x="8" y="3" width="1" height="1" fill="currentColor"/><rect x="9" y="3" width="1" height="1" fill="currentColor"/><rect x="10" y="3" width="1" height="1" fill="currentColor"/><rect x="11" y="3" width="1" height="1" fill="currentColor"/><rect x="7" y="4" width="1" height="1" fill="currentColor"/><rect x="8" y="4" width="1" height="1" fill="currentColor"/><rect x="9" y="4" width="1" height="1" fill="currentColor"/><rect x="10" y="4" width="1" height="1" fill="currentColor"/><rect x="11" y="4" width="1" height="1" fill="currentColor"/><rect x="12" y="4" width="1" height="1" fill="var(--pixel-orange)"/><rect x="6" y="5" width="1" height="1" fill="currentColor"/><rect x="7" y="5" width="1" height="1" fill="currentColor"/><rect x="8" y="5" width="1" height="1" fill="currentColor"/><rect x="9" y="5" width="1" height="1" fill="currentColor"/><rect x="10" y="5" width="1" height="1" fill="currentColor"/><rect x="11" y="5" width="1" height="1" fill="currentColor"/><rect x="2" y="6" width="1" height="1" fill="currentColor"/><rect x="3" y="6" width="1" height="1" fill="currentColor"/><rect x="5" y="6" width="1" height="1" fill="currentColor"/><rect x="6" y="6" width="1" height="1" fill="currentColor"/><rect x="7" y="6" width="1" height="1" fill="currentColor"/><rect x="8" y="6" width="1" height="1" fill="currentColor"/><rect x="9" y="6" width="1" height="1" fill="currentColor"/><rect x="10" y="6" width="1" height="1" fill="currentColor"/><rect x="3" y="7" width="1" height="1" fill="currentColor"/><rect x="4" y="7" width="1" height="1" fill="currentColor"/><rect x="5" y="7" width="1" height="1" fill="currentColor"/><rect x="6" y="7" width="1" height="1" fill="currentColor"/><rect x="7" y="7" width="1" height="1" fill="currentColor"/><rect x="8" y="7" width="1" height="1" fill="currentColor"/><rect x="9" y="7" width="1" height="1" fill="currentColor"/><rect x="10" y="7" width="1" height="1" fill="currentColor"/><rect x="4" y="8" width="1" height="1" fill="currentColor"/><rect x="5" y="8" width="1" height="1" fill="currentColor"/><rect x="6" y="8" width="1" height="1" fill="currentColor"/><rect x="7" y="8" width="1" height="1" fill="currentColor"/><rect x="8" y="8" width="1" height="1" fill="currentColor"/><rect x="9" y="8" width="1" height="1" fill="currentColor"/><rect x="5" y="9" width="1" height="1" fill="currentColor"/><rect x="6" y="9" width="1" height="1" fill="currentColor"/><rect x="7" y="9" width="1" height="1" fill="currentColor"/><rect x="8" y="9" width="1" height="1" fill="currentColor"/><rect x="9" y="9" width="1" height="1" fill="currentColor"/><rect x="6" y="10" width="1" height="1" fill="currentColor"/><rect x="7" y="10" width="1" height="1" fill="currentColor"/><rect x="8" y="10" width="1" height="1" fill="currentColor"/><rect x="5" y="11" width="1" height="1" fill="currentColor"/><rect x="7" y="11" width="1" height="1" fill="currentColor"/><rect x="4" y="12" width="1" height="1" fill="currentColor"/><rect x="5" y="12" width="1" height="1" fill="currentColor"/><rect x="7" y="12" width="1" height="1" fill="currentColor"/><rect x="8" y="12" width="1" height="1" fill="currentColor"/></svg>
+      <span>Syllark</span>
+    </div>
+    <nav class="views n-tabs" aria-label="views" data-i18n-aria="views">
+      <button data-view="extract" aria-current="page"><span data-i18n="Transcribe">Transcribe</span></button>
+      <button data-view="gallery"><span data-i18n="Gallery">Gallery</span> <span class="count" id="n-gallery"></span></button>
+      <button data-view="history"><span data-i18n="History">History</span> <span class="count" id="n-history"></span></button>
+      <button data-view="about"><span data-i18n="About">About</span></button>
+    </nav>
+    <div class="drag-fill pywebview-drag-region"></div>
+    <div class="right">
+      <button class="n-button-theme" id="open-commands" data-n-open="commands" aria-haspopup="dialog" aria-controls="commands"
+        aria-label="Commands" title="Commands" data-i18n-aria="Commands" data-i18n-title="Commands">
+        <svg class="n-pixel" width="16" height="16" viewBox="0 0 8 8" aria-hidden="true"><path d="M0 0h3v1H0zM5 0h3v1H5zM0 1h1v2H0zM2 1h1v6H2zM5 1h1v6H5zM7 1h1v2H7zM0 2h8v1H0zM0 5h8v1H0zM0 5h1v2H0zM7 5h1v2H7zM0 7h3v1H0zM5 7h3v1H5z" fill="var(--text)"/></svg>
+      </button>
+      <div class="locale-shell">
+        <button class="n-button-theme" id="ui-language" aria-haspopup="dialog" aria-expanded="false"
+          aria-controls="locale-menu" aria-label="Change language" title="Change language"
+          data-i18n-aria="Change language" data-i18n-title="Change language">
+          <svg class="n-pixel" width="16" height="16" viewBox="0 0 8 8" aria-hidden="true"><path d="M2 0h4v1H2zM1 1h1v1H1zM6 1h1v1H6zM0 2h1v4H0zM7 2h1v4H7zM1 6h1v1H1zM6 6h1v1H6zM2 7h4v1H2zM3 1h1v6H3zM5 1h1v6H5zM1 3h6v1H1zM1 5h6v1H1z" fill="var(--signature-ring)"/></svg>
+        </button>
+        <div class="locale-menu n-card" id="locale-menu" role="dialog" aria-label="App language" data-i18n-aria="App language" hidden>
+          <b data-i18n="App language">App language</b>
+          <label class="n-field small" for="locale-search"><span data-i18n="Search languages">Search languages</span>
+            <input id="locale-search" type="search" autocomplete="off" spellcheck="false">
+          </label>
+          <div class="locale-options" id="locale-options" role="radiogroup" aria-label="App language" data-i18n-aria="App language"></div>
+        </div>
+      </div>
+      <span id="locale-status" class="sr-only" role="status" aria-live="polite"></span>
+      <button class="n-button-theme" id="theme" aria-label="Change theme" title="Change theme" data-i18n-aria="Change theme" data-i18n-title="Change theme">
+        <svg class="n-pixel s-dark" width="14" height="14" viewBox="0 0 7 7" aria-hidden="true"><path d="M2 0h3v1h-3zM1 1h2v1h-2zM0 2h2v3h-2zM1 5h2v1h-2zM2 6h3v1h-3zM5 5h1v1h-1z" fill="#ffb162"/></path></svg>
+        <svg class="n-pixel s-light" width="14" height="14" viewBox="0 0 7 7" aria-hidden="true"><path d="M2 2h3v3h-3zM3 0h1v1h-1zM3 6h1v1h-1zM0 3h1v1h-1zM6 3h1v1h-1zM1 1h1v1h-1zM5 1h1v1h-1zM1 5h1v1h-1zM5 5h1v1h-1z" fill="#a35139"/></path></svg>
+      </button>
+      <div class="window-buttons">
+        <button id="w-min" aria-label="Minimize" title="Minimize" data-i18n-aria="Minimize" data-i18n-title="Minimize"><svg width="10" height="10" viewBox="0 0 10 10"><path d="M0 5.5h10" stroke="currentColor"/></path></svg></button>
+        <button id="w-max" aria-label="Maximize" title="Maximize" data-i18n-aria="Maximize" data-i18n-title="Maximize"><svg width="10" height="10" viewBox="0 0 10 10"><rect x=".5" y=".5" width="9" height="9" stroke="currentColor" fill="none"/></rect></svg></button>
+        <button class="close" id="w-close" aria-label="Close" title="Close" data-i18n-aria="Close" data-i18n-title="Close"><svg width="10" height="10" viewBox="0 0 10 10"><path d="M0 0l10 10M10 0L0 10" stroke="currentColor"/></path></svg></button>
+      </div>
+    </div>
+  </header>
+
+  <main class="pane">
+    <div class="content">
+
+      <!-- ─────────── transcribe ─────────── -->
+      <section class="view on" id="v-extract">
+        <header class="hero" data-n-reveal>
+          <div class="stage" id="stage"><canvas class="n-orbi" id="orbi" width="56" height="46" tabindex="0" role="img" aria-label="Orbi, the mascot. Click him." data-i18n-aria="Orbi, the mascot. Click him."></canvas></div>
+          <div class="hero-copy"><h1 class="n-display" aria-label="Syllark.">Syllark<span class="dot" aria-hidden="true"></span></h1>
+          <p class="n-subtitle"><span data-i18n="Paste a profile and get every video back as text, transcribed on this computer.">Paste a profile and get every video back as text, transcribed on this computer.</span></p></div>
+        </header>
+
+        <div class="launch" data-n-reveal style="--delay:60ms">
+          <div class="launch-row">
+            <label class="n-field" for="profile"><span data-i18n="Video or profile link">Video or profile link</span>
+              <input id="profile" spellcheck="false" autocomplete="off">
+            </label>
+            <label class="n-field" for="how-many"><span data-i18n="How many">How many</span>
+              <span class="dropdown">
+                <select id="how-many">
+                  <option value="" data-i18n="All">All</option>
+                  <option value="10" data-i18n="First 10">First 10</option>
+                  <option value="25" data-i18n="First 25">First 25</option>
+                  <option value="50" data-i18n="First 50">First 50</option>
+                  <option value="100" data-i18n="First 100">First 100</option>
+                </select>
+                <svg class="n-pixel chevron" width="14" height="8" viewBox="0 0 7 4" aria-hidden="true"><path d="M0 0h1v1h-1zM6 0h1v1h-1zM1 1h1v1h-1zM5 1h1v1h-1zM2 2h1v1h-1zM4 2h1v1h-1zM3 3h1v1h-1z" fill="currentColor"/></path></svg>
+              </span>
+            </label>
+            <div>
+              <button class="n-button" id="go" data-n-magnetic><span id="go-txt"><span data-i18n="Transcribe">Transcribe</span></span></button>
+              <button class="n-button n-button--secondary" id="stop" disabled hidden><span data-i18n="Stop">Stop</span></button>
+            </div>
+          </div>
+          <p class="session n-small"><span data-i18n="· @someone, a profile link, or the link of one of their videos">· @someone, a profile link, or the link of one of their videos</span></p>
+
+          <div class="setup" id="setup" hidden>
+            <div class="n-loading" id="setup-bar" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" aria-label="Getting whisper ready" data-i18n-aria="Getting whisper ready"></div>
+            <span class="n-small" id="setup-t"></span>
+          </div>
+
+          <div class="notice n-card" id="infobar" role="status">
+            <canvas class="face" id="info-face" width="56" height="46" aria-hidden="true"></canvas>
+            <div class="txt"><b id="info-t"></b><p id="info-p"></p></div>
+          </div>
+        </div>
+
+        <!-- options -->
+        <section>
+          <div class="heading"><h2 class="n-title"><span data-i18n="Options">Options</span></h2><span class="n-small"><span data-i18n="They apply from the next run">They apply from the next run</span></span></div>
+          <div class="options" data-n-reveal>
+            <div>
+              <div class="n-label-text group-name"><span data-i18n="Transcription">Transcription</span></div>
+              <div class="n-inset">
+                <div class="setting">
+                  <label class="name" for="language"><div class="setting-name"><span data-i18n="Language">Language</span></div><div class="note"><span data-i18n="Auto detects the language of each video">Auto detects the language of each video</span></div></label>
+                  <span class="n-field small"><span class="dropdown"><select id="language"></select>
+                    <svg class="n-pixel chevron" width="14" height="8" viewBox="0 0 7 4" aria-hidden="true"><path d="M0 0h1v1h-1zM6 0h1v1h-1zM1 1h1v1h-1zM5 1h1v1h-1zM2 2h1v1h-1zM4 2h1v1h-1zM3 3h1v1h-1z" fill="currentColor"/></path></svg></span></span>
+                </div>
+                <div class="setting model-setting">
+                  <label class="name" for="model"><div class="setting-name"><span data-i18n="Transcription model">Transcription model</span> <span class="n-label device" id="engine-device"></span></div></label>
+                  <span class="n-field small"><span class="dropdown"><select id="model"></select>
+                    <svg class="n-pixel chevron" width="14" height="8" viewBox="0 0 7 4" aria-hidden="true"><path d="M0 0h1v1h-1zM6 0h1v1h-1zM1 1h1v1h-1zM5 1h1v1h-1zM2 2h1v1h-1zM4 2h1v1h-1zM3 3h1v1h-1z" fill="currentColor"/></path></svg></span></span>
+                  <div class="model-explanation"><div class="note" id="model-note"></div><div class="note"><span data-i18n="Downloads automatically. No extra apps or accounts.">Downloads automatically. No extra apps or accounts.</span></div></div>
+                </div>
+                <div class="setting">
+                  <div class="name"><div class="setting-name"><span data-i18n="File format">File format</span></div><div class="note"><span data-i18n="One file per video">One file per video</span></div></div>
+                  <div class="choice" id="seg-format">
+                    <button data-v="md" aria-pressed="true">.md</button>
+                    <button data-v="txt" aria-pressed="false">.txt</button>
+                  </div>
+                </div>
+                <div class="setting">
+                  <label class="n-switch" for="sw-times"><span class="setting-text"><span class="setting-name"><span data-i18n="Put the minute at the start of each line">Put the minute at the start of each line</span></span><span class="note"><span data-i18n="Like [3:42]">Like [3:42]</span></span></span>
+                    <input type="checkbox" id="sw-times"><span class="n-switch__track"></span></label>
+                </div>
+              </div>
+            </div>
+            <div>
+              <div class="n-label-text group-name"><span data-i18n="Saving">Saving</span></div>
+              <div class="n-inset">
+                <div class="setting">
+                  <div class="name"><div class="setting-name"><span data-i18n="Save to">Save to</span></div></div>
+                  <div class="folder-row">
+                    <input id="folder" readonly aria-label="Output folder" data-i18n-aria="Output folder">
+                    <button class="n-button n-button--secondary small" id="browse"><span data-i18n="Change">Change</span></button>
+                    <button class="n-button n-button--secondary small" id="open-folder"><span data-i18n="Open">Open</span></button>
+                  </div>
+                </div>
+                <div class="setting">
+                  <label class="n-switch" for="sw-resume"><span class="setting-text"><span class="setting-name"><span data-i18n="Skip videos already transcribed">Skip videos already transcribed</span></span><span class="note"><span data-i18n="Stop whenever you like and pick up later">Stop whenever you like and pick up later</span></span></span>
+                    <input type="checkbox" id="sw-resume" checked><span class="n-switch__track"></span></label>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- progress -->
+        <section class="hidden" id="card-progress" hidden>
+          <div class="heading"><h2 class="n-title"><span data-i18n="Progress">Progress</span></h2><span class="n-small" id="progress-sub"></span></div>
+          <div class="profile-head">
+            <div class="who">
+              <div id="handle"></div>
+              <div class="n-small" id="facts"></div>
+            </div>
+            <span class="n-label" id="resolved"></span>
+          </div>
+          <div class="run">
+            <div class="n-loading" id="bar" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" aria-label="Progress" data-i18n-aria="Progress"></div>
+            <div class="status">
+              <div class="n-item"><span id="p-done">0</span> <span id="p-of"></span></div>
+              <div class="n-small" id="p-eta-wrap" style="visibility:hidden"><span id="p-eta"></span></div>
+            </div>
+          </div>
+          <div class="numbers">
+            <div class="n-card"><span class="n-card__label"><span data-i18n="Transcribed">Transcribed</span></span><span class="n-card__title" id="s-ok">0</span></div>
+            <div class="n-card"><span class="n-card__label"><span data-i18n="Already there">Already there</span></span><span class="n-card__title" id="s-skip">0</span></div>
+            <div class="n-card"><span class="n-card__label"><span data-i18n="Working on">Working on</span></span><span class="n-card__title" id="s-running">0</span></div>
+            <div class="n-card"><span class="n-card__label"><span data-i18n="Waiting">Waiting</span></span><span class="n-card__title" id="s-queued">0</span></div>
+            <div class="n-card"><span class="n-card__label"><span data-i18n="Failed">Failed</span></span><span class="n-card__title" id="s-err">0</span></div>
+          </div>
+        </section>
+
+        <!-- list + details -->
+        <section>
+          <div class="heading"><h2 class="n-title"><span data-i18n="Videos">Videos</span></h2></div>
+          <div class="split">
+            <div class="box">
+              <div class="box-head">
+                <div class="filters">
+                  <button class="filter" data-f="all" aria-pressed="true"><span data-i18n="All">All</span></button>
+                  <button class="filter" data-f="done" aria-pressed="false"><span data-i18n="Done">Done</span></button>
+                  <button class="filter" data-f="error" aria-pressed="false"><span data-i18n="Failed">Failed</span></button>
+                </div>
+                <label class="n-field small search" for="search"><span data-i18n="Filter by caption">Filter by caption</span>
+                  <input id="search" spellcheck="false" autocomplete="off">
+                </label>
+              </div>
+              <div class="rows" id="rows"></div>
+              <div class="empty" id="empty">
+                <b><span data-i18n="No videos yet">No videos yet</span></b>
+                <p><span data-i18n="Paste a profile up there. Every video gets its own file, plus one with all of them.">Paste a profile up there. Every video gets its own file, plus one with all of them.</span></p>
+              </div>
+              <div class="list-f" id="list-f">—</div>
+            </div>
+
+            <div class="box">
+              <div class="tabs n-tabs" data-n-tabs role="tablist" aria-label="Details" data-i18n-aria="Details">
+                <button class="tab" id="tab-log" role="tab" aria-controls="logbox" data-tab="log" aria-selected="true"><span data-i18n="Details">Details</span></button>
+                <button class="tab" id="tab-err" role="tab" aria-controls="errpane" data-tab="err" aria-selected="false"><span data-i18n="Errors">Errors</span> <span class="n" id="n-err">0</span></button>
+              </div>
+              <div class="logbox" id="logbox" role="tabpanel" aria-labelledby="tab-log" tabindex="0"></div>
+              <div class="errpane" id="errpane" role="tabpanel" aria-labelledby="tab-err" tabindex="0" hidden></div>
+              <div class="log-f">
+                <span class="sp" id="log-f"><span data-i18n="Waiting">Waiting</span></span>
+                <button class="link" id="clear-log"><span data-i18n="Clear">Clear</span></button>
+              </div>
+            </div>
+          </div>
+        </section>
+      </section>
+
+      <!-- ─────────── gallery ─────────── -->
+      <section class="view" id="v-gallery">
+        <div class="heading"><h1 class="n-title"><span data-i18n="Gallery">Gallery</span></h1><span class="n-small" id="gal-pill-txt"><span data-i18n="Look before you transcribe">Look before you transcribe</span></span></div>
+        <div class="gal-head">
+          <label class="n-field" for="gal-profile"><span data-i18n="Video or profile link">Video or profile link</span>
+            <input id="gal-profile" spellcheck="false" autocomplete="off">
+          </label>
+          <label class="n-field" for="gal-how-many"><span data-i18n="How many">How many</span>
+            <span class="dropdown">
+              <select id="gal-how-many">
+                <option value="30" data-i18n="First 30">First 30</option>
+                <option value="60" data-i18n="First 60">First 60</option>
+                <option value="120" data-i18n="First 120">First 120</option>
+                <option value="" data-i18n="All">All</option>
+              </select>
+              <svg class="n-pixel chevron" width="14" height="8" viewBox="0 0 7 4" aria-hidden="true"><path d="M0 0h1v1h-1zM6 0h1v1h-1zM1 1h1v1h-1zM5 1h1v1h-1zM2 2h1v1h-1zM4 2h1v1h-1zM3 3h1v1h-1z" fill="currentColor"/></path></svg>
+            </span>
+          </label>
+          <button class="n-button" id="gal-go" data-n-magnetic><span data-i18n="Explore">Explore</span></button>
+          <div class="menu-shell">
+            <button class="n-button n-button--secondary" id="gal-opts" aria-expanded="false"><span data-i18n="Options">Options</span></button>
+            <div class="menu n-card" id="gal-menu" role="dialog" aria-label="Transcription options" data-i18n-aria="Transcription options">
+              <div class="menu-p"><span data-i18n="How the gallery transcribes">How the gallery transcribes</span></div>
+              <div class="setting">
+                <label class="n-switch" for="g-times"><span class="setting-text"><span class="setting-name"><span data-i18n="Minute at each line">Minute at each line</span></span><span class="note"><span data-i18n="Like [3:42]">Like [3:42]</span></span></span>
+                  <input type="checkbox" id="g-times"><span class="n-switch__track"></span></label>
+              </div>
+              <div class="setting">
+                <div class="name"><div class="setting-name"><span data-i18n="Format">Format</span></div></div>
+                <div class="choice" id="g-format">
+                  <button data-v="md" aria-pressed="true">.md</button>
+                  <button data-v="txt" aria-pressed="false">.txt</button>
+                </div>
+              </div>
+              <div class="menu-p"><span data-i18n="The same settings as the Transcribe view">The same settings as the Transcribe view</span></div>
+            </div>
+          </div>
+          <button class="n-button n-button--secondary" id="gal-folder"><span data-i18n="Open folder">Open folder</span></button>
+        </div>
+
+        <p class="n-small gallery-message" id="gal-message" role="status"></p>
+
+        <div class="setup" id="gal-setup" hidden style="margin:calc(-1 * var(--space-4)) 0 var(--space-6)">
+          <div class="n-loading" id="gal-setup-bar" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" aria-label="Getting whisper ready" data-i18n-aria="Getting whisper ready"></div>
+          <span class="n-small" id="gal-setup-t"></span>
+        </div>
+
+        <div class="gal-loading" id="gal-load">
+          <div class="n-loading" id="gal-bar" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" aria-label="Loading the profile" data-i18n-aria="Loading the profile"></div>
+          <span class="n-small" id="gal-load-t"><span data-i18n="Looking for the profile">Looking for the profile</span></span>
+          <button class="link" id="gal-stop"><span data-i18n="Stop">Stop</span></button>
+        </div>
+
+        <div class="gal" id="gal-grid"></div>
+
+        <div class="empty" id="gal-empty">
+          <canvas class="face" data-face="curious" width="56" height="46" aria-hidden="true"></canvas>
+          <b><span data-i18n="Look before you transcribe">Look before you transcribe</span></b>
+          <p><span data-i18n="Paste a profile and every video shows up with its cover. Hover one to download it or to transcribe just that one.">Paste a profile and every video shows up with its cover. Hover one to download it or to transcribe just that one.</span></p>
+        </div>
+      </section>
+
+      <!-- ─────────── history ─────────── -->
+      <section class="view" id="v-history">
+        <div class="heading"><h1 class="n-title"><span data-i18n="History">History</span></h1>
+          <button class="n-button n-button--secondary small" id="hist-refresh"><span data-i18n="Refresh">Refresh</span></button></div>
+        <div class="grid" id="hist-grid"></div>
+        <div class="empty" id="hist-empty">
+          <canvas class="face" data-face="asleep" width="56" height="46" aria-hidden="true"></canvas>
+          <b><span data-i18n="Nothing here yet">Nothing here yet</span></b>
+          <p><span data-i18n="The profiles you transcribe show up here, and from here you get back to them in one click.">The profiles you transcribe show up here, and from here you get back to them in one click.</span></p>
+        </div>
+      </section>
+
+      <!-- ─────────── about ─────────── -->
+      <section class="view" id="v-about">
+        <div class="heading"><h1 class="n-title"><span data-i18n="About">About</span></h1></div>
+        <div class="about-groups">
+          <div class="appearance">
+            <div class="n-label-text group-name"><span data-i18n="Appearance">Appearance</span></div>
+            <div class="n-inset"><div class="setting">
+              <label class="n-switch" for="sw-motion"><span class="setting-text">
+                <span class="setting-name" data-i18n="Reduce animations">Reduce animations</span>
+                <span class="note" data-i18n="Keep Orbi and interface motion still">Keep Orbi and interface motion still</span>
+              </span><input type="checkbox" id="sw-motion"><span class="n-switch__track"></span></label>
+            </div></div>
+          </div>
+          <div><div class="n-label-text group-name"><span data-i18n="Machine">Machine</span></div><dl class="kv n-inset" id="i-machine"></dl></div>
+          <div><div class="n-label-text group-name"><span data-i18n="Packages">Packages</span></div><dl class="kv n-inset" id="i-packages"></dl></div>
+          <div><div class="n-label-text group-name"><span data-i18n="Transcription models">Transcription models</span></div><dl class="kv n-inset" id="i-models"></dl></div>
+          <div><div class="n-label-text group-name"><span data-i18n="Paths">Paths</span></div><dl class="kv n-inset" id="i-paths"></dl></div>
+        </div>
+        <div class="signature-foot n-small"><span data-i18n="A project by Nas">A project by Nas</span>
+          <svg class="n-pixel n-signature" width="26" height="18" viewBox="0 0 13 9" aria-hidden="true"><path class="t" d="M2 0h2v9h-2zM9 0h2v9h-2zM4 1h1v1h-1zM4 2h2v1h-2zM5 3h2v1h-2zM6 4h2v1h-2zM7 5h2v1h-2zM8 6h1v1h-1z"/></path><path class="a" d="M0 4h1v1h-1zM12 4h1v1h-1zM0 5h2v1h-2zM11 5h2v1h-2zM1 6h11v1h-11z"/></path><path class="m" d="M12 1h1v1h-1z"/></path></svg>
+        </div>
+      </section>
+
+    </div>
+  </main>
+</div>
+
+<dialog class="n-dialog n-commands" id="commands" data-n-command aria-labelledby="commands-title">
+  <div class="n-dialog__header">
+    <h2 class="n-item" id="commands-title" data-i18n="Commands">Commands</h2>
+    <div class="command-tools"><kbd class="n-kbd">Ctrl K</kbd>
+      <button class="n-dismiss" data-n-close aria-label="Close" data-i18n-aria="Close">×</button>
+    </div>
+  </div>
+  <label class="n-field" for="commands-search"><span data-i18n="Search commands">Search commands</span>
+    <input id="commands-search" type="search" data-n-filter autocomplete="off" spellcheck="false">
+  </label>
+  <div class="n-command-list">
+    <button class="n-command" data-n-item data-command-view="extract"><span data-i18n="Transcribe">Transcribe</span></button>
+    <button class="n-command" data-n-item data-command-view="gallery"><span data-i18n="Gallery">Gallery</span></button>
+    <button class="n-command" data-n-item data-command-view="history"><span data-i18n="History">History</span></button>
+    <button class="n-command" data-n-item data-command-view="about"><span data-i18n="About">About</span></button>
+    <button class="n-command" data-n-item data-command="folder"><span data-i18n="Open folder">Open folder</span></button>
+    <button class="n-command" data-n-item data-command="theme"><span data-i18n="Change theme">Change theme</span></button>
+    <button class="n-command" data-n-item data-command="language"><span data-i18n="App language">App language</span></button>
+    <p class="n-small" data-n-empty hidden data-i18n="No matching commands">No matching commands</p>
+  </div>
+</dialog>
+
+<!-- Orbi, from the Nas design system. app.py puts these two files inline
+     when it opens the window -->
+<script src="vendor/orbi.js"></script>
+<script src="vendor/orbi-icons.js"></script>
+<script src="vendor/nas.js"></script>
+<script src="i18n.js"></script>
+<script src="controls.js"></script>
+<script>
+"use strict";
+const $ = (s) => document.querySelector(s);
+const $$ = (s) => [...document.querySelectorAll(s)];
+const rows = new Map();
+const meta = new Map();
+const S = { active:false, total:0, folder:"", models:[], filter:"all", search:"",
+            errors:[], startedAt:0, format:"md", galDone:0, theme:"" };
+let orbi = null;
+
+/* ------------------------------------------------------------ utility */
+const pad = (n) => String(n).padStart(2,"0");
+function clockTime(){ const d=new Date(); return pad(d.getHours())+":"+pad(d.getMinutes())+":"+pad(d.getSeconds()); }
+function duration(s){
+  if(!s) return "—";
+  s=Math.round(s); return Math.floor(s/60)+":"+pad(s%60);
+}
+function etaText(s){
+  if(s==null) return "";
+  if(s<60) return "About "+Math.round(s)+" seconds left";
+  if(s<3600) return "About "+Math.round(s/60)+" minutes left";
+  const h=Math.floor(s/3600), m=Math.round((s%3600)/60);
+  return "About "+h+" h"+(m?" "+m+" min":"")+" left";
+}
+function fileSize(b){
+  if(!b) return "0 kb";
+  if(b<1048576) return I18n.number(b/1024,{maximumFractionDigits:0})+" KB";
+  if(b<1073741824) return I18n.number(b/1048576,{minimumFractionDigits:1,maximumFractionDigits:1})+" MB";
+  return I18n.number(b/1073741824,{minimumFractionDigits:2,maximumFractionDigits:2})+" GB";
+}
+/* the engine writes its messages in lower case, like a log: on screen they
+   start with a capital, like every other sentence of the interface */
+const cap = (t) => t ? t.charAt(0).toUpperCase()+t.slice(1) : t;
+
+/* ------------------------------------------------------------ squares
+
+   the loading bar of the design system: twelve squares that fill up. the
+   last full one blinks while it works. */
+function squares(el, n){
+  if(el.children.length===n) return;
+  el.textContent="";
+  for(let i=0;i<n;i++) el.appendChild(document.createElement("span"));
+}
+function fillSquares(el, fraction, alive){
+  const n=el.children.length;
+  const full=Math.max(0, Math.min(n, Math.round(fraction*n)));
+  for(let i=0;i<n;i++){
+    el.children[i].className = i<full ? "full"+(alive && i===full-1 ? " alive" : "") : "";
+  }
+  if(el.getAttribute("role")==="progressbar")
+    el.setAttribute("aria-valuenow", String(Math.round(Math.max(0,Math.min(1,fraction))*100)));
+}
+
+/* ------------------------------------------------------------ Orbi
+
+   one Orbi alive, at the top of the transcribe view. the other views show
+   him still, with the face that fits: drawn by the same engine, never an
+   image that could drift away from him. */
+function drawFaces(){
+  if(!window.Orbi) return;
+  $$("canvas.face[data-face]").forEach(c=>Orbi.draw(c, {t:0, face:c.dataset.face}));
+}
+function startOrbi(){
+  if(!window.Orbi) return;
+  try{
+    orbi = Nas.orbi($("#orbi"), { fit:{ max:224, container:$("#stage") }, remember:false });
+  }catch(err){ console.error("orbi", err); }
+  $$("canvas.face").forEach(c=>{ c.style.width="168px"; c.style.height="138px"; });
+  $("#info-face").style.width="112px"; $("#info-face").style.height="92px";
+  drawFaces();
+}
+function face(canvas, name){
+  canvas.dataset.face=name;
+  if(window.Orbi) Orbi.draw(canvas, {t:0, face:name});
+}
+
+/* ------------------------------------------------------------ theme */
+function applyTheme(t){
+  S.theme=t||"";
+  if(S.theme) document.documentElement.dataset.theme=S.theme;
+  else delete document.documentElement.dataset.theme;
+  drawFaces();
+}
+function currentTheme(){
+  if(S.theme) return S.theme;
+  return matchMedia("(prefers-color-scheme: light)").matches ? "light" : "dark";
+}
+if(window.matchMedia) matchMedia("(prefers-color-scheme: light)").addEventListener("change", drawFaces);
+
+/* ------------------------------------------------------- frame batching
+
+   everything that touches layout (scrolling the log, inserting rows,
+   recounting how many are visible) goes through here and happens ONCE per
+   frame.
+
+   before, every packet of events arriving from python did its work on the dom
+   immediately: with four transcriptions and three downloads in flight that is
+   twelve packets a second, and each one re-read scrollHeight and walked every
+   row in the list. reading a measurement after writing a style forces the
+   browser to redo the whole page's maths right then, and while it does the
+   window is frozen. */
+let frameQueued=false;
+const todo={rows:null, errors:null, filter:false, count:false, galCount:false};
+function scheduleFrame(){
+  if(frameQueued) return;
+  frameQueued=true;
+  requestAnimationFrame(runFrame);
+}
+function runFrame(){
+  frameQueued=false;
+  flushLog();
+  if(todo.rows){ $("#rows").appendChild(todo.rows); todo.rows=null; todo.count=true; }
+  if(todo.errors){ $("#errpane").appendChild(todo.errors); todo.errors=null; }
+  if(todo.filter){ todo.filter=false; todo.count=true; reapplyFilters(); }
+  if(todo.count){ todo.count=false; showCount(); }
+  if(todo.galCount){ todo.galCount=false; showGalleryCount(); }
+}
+
+/* ------------------------------------------------------------ log */
+const LOG_CEILING=600;   // lines kept in the box
+const LOG_BACKLOG=400;   // lines waiting: past this, the oldest are dropped
+let logQueue=[];
+const LVL_CLASS={info:"i",ok:"o",warn:"w",err:"e"};
+
+function logLine(text, level){
+  logQueue.push([clockTime(), text, level]);
+  if(logQueue.length>LOG_BACKLOG) logQueue.splice(0, logQueue.length-LOG_BACKLOG);
+  scheduleFrame();
+}
+function flushLog(){
+  if(!logQueue.length) return;
+  const box=$("#logbox");
+  /* this has to be measured BEFORE appending: afterwards it is always false
+     and the scroll runs off to the bottom even for someone reading further up */
+  const atBottom = box.scrollHeight - box.scrollTop - box.clientHeight < 40;
+  const frag=document.createDocumentFragment();
+  let last="";
+  for(const [when, text, level] of logQueue){
+    const l=document.createElement("div"); l.className="ln";
+    const t=document.createElement("span"); t.className="t"; I18n.set(t, when);
+    const v=document.createElement("span");
+    v.className="lv "+(LVL_CLASS[level]||"i");
+    I18n.set(v,{info:"Information",ok:"Done",warn:"Warning",err:"Error"}[level]||"Information","title");
+    const m=document.createElement("span"); m.className="m"; I18n.set(m, text);
+    l.append(t,v,m); frag.appendChild(l);
+    last=text;
+  }
+  logQueue=[];
+  box.appendChild(frag);
+  while(box.children.length>LOG_CEILING) box.removeChild(box.firstChild);
+  if(atBottom) box.scrollTop=box.scrollHeight;
+  I18n.set($("#log-f"), cap(last));
+}
+function banner(title, text, severe){
+  const b=$("#infobar");
+  if(!title){ b.classList.remove("on"); return; }
+  I18n.set($("#info-t"), title);
+  I18n.set($("#info-p"), cap(text||""));
+  /* something broke: Orbi dizzy, never crying. a warning: Orbi curious */
+  face($("#info-face"), severe ? "dizzy" : "curious");
+  b.classList.toggle("severe", !!severe);
+  b.classList.add("on");
+}
+/* on a profile going badly the errors come one per video: past this many they
+   add nothing to read, only nodes to draw */
+const ERR_CEILING=200;
+function addError(title, text){
+  S.errors.push({title,text});
+  const n=$("#n-err"); I18n.set(n, S.errors.length);
+  if(S.errors.length>ERR_CEILING) return;
+  const d=document.createElement("div"); d.className="item";
+  d.innerHTML='<div class="h"></div><p></p>';
+  I18n.set(d.querySelector(".h"), title);
+  I18n.set(d.querySelector("p"), cap(text||""));
+  todo.errors=todo.errors||document.createDocumentFragment();
+  todo.errors.appendChild(d);
+  scheduleFrame();
+}
+
+/* ------------------------------------------------------------ rows */
+const LABELS={queued:"Waiting",downloading:"Downloading",transcribing:"Transcribing",
+              done:"Complete",error:"Unsuccessful",skipped:"Already saved"};
+
+/* every row keeps its own pieces. it sounds like a detail, but it was four
+   querySelector calls per state update, and the updates run into the
+   thousands over a whole profile */
+function makeRow(e){
+  const r=document.createElement("div");
+  r.className="row hidden"; r.dataset.s="queued"; r.dataset.id=e.id;
+  r.innerHTML='<span class="num"></span>'
+    +'<div class="ttl"><div class="t"></div><div class="m"></div></div>'
+    +'<div class="dur"></div>'
+    +'<div class="state"><span class="badge n-label"></span><span class="minibar"><i></i></span></div>'
+    +'<button class="rowbtn n-button n-button--secondary small" tabindex="-1"><span data-i18n="Open">Open</span></button>';
+  r._m     = r.querySelector(".m");
+  r._badge = r.querySelector(".badge");
+  r._bar   = r.querySelector(".minibar > i");
+  r._btn   = r.querySelector(".rowbtn");
+  r.querySelector(".num").textContent=String((e.index??0)+1).padStart(4,"0");
+  r.querySelector(".t").textContent=e.title||e.id;
+  I18n.set(r.querySelector(".dur"), duration(e.duration));
+  I18n.set(r._badge, LABELS.queued);
+  I18n.set(r._btn,"Open on TikTok","title");
+  I18n.apply(r);
+  rows.set(e.id,r);
+  meta.set(e.id,{title:(e.title||"").toLowerCase(),index:(e.index??0)+1,file:null,url:e.url||null});
+  applyFilter(r);
+  return r;
+}
+function updateRow(e){
+  const r=rows.get(e.id); if(!r) return;
+  const d=meta.get(e.id)||{};
+  r.dataset.s=e.state;
+  I18n.set(r._badge, LABELS[e.state]||cap(e.state));
+  if(e.state==="done"){
+    I18n.set(r._m, (e.words??0)+" words"+(e.language?" · "+e.language:""));
+    /* the real path, not a "true": before, the button promised "open the
+       transcript" and then opened tiktok anyway */
+    d.file=e.file||null;
+    I18n.set(r._btn,d.file?"Open the transcript":"Open on TikTok","title");
+  } else if(e.state==="error"){
+    I18n.set(r._m, cap(e.message||"failed"));
+    I18n.set(r,cap(e.message||""),"title");
+    addError((d.title||e.id).slice(0,70), e.message||"");
+  } else if(e.state==="skipped"){
+    I18n.set(r._m, "Transcribed in an earlier run");
+  }
+  applyFilter(r);
+}
+/* the count of visible rows keeps itself up to date as they change. before,
+   every packet of events walked ALL the rows to recount them: with 575 videos
+   and twelve packets a second that is seven thousand passes a second, each of
+   which could force a restyle of the list */
+let visible=0;
+function applyFilter(r){
+  const d=meta.get(r.dataset.id)||{};
+  const ok = (S.filter==="all" || r.dataset.s===S.filter)
+          && (!S.search || (d.title||"").includes(S.search));
+  const before = !r.classList.contains("hidden");
+  if(ok!==before){ r.classList.toggle("hidden", !ok); visible += ok?1:-1; }
+  return ok;
+}
+function showCount(){
+  I18n.set($("#list-f"), rows.size ? visible+" of "+rows.size+" videos shown" : "—");
+}
+/* the full pass is only needed when the filter or the search changes: there,
+   the rows to revisit really are all of them. it deliberately does not go
+   through applyFilter, because that keeps its own count and here it is
+   rebuilt from scratch */
+function reapplyFilters(){
+  visible=0;
+  rows.forEach(r=>{
+    const d=meta.get(r.dataset.id)||{};
+    const ok = (S.filter==="all" || r.dataset.s===S.filter)
+            && (!S.search || (d.title||"").includes(S.search));
+    r.classList.toggle("hidden", !ok);
+    if(ok) visible++;
+  });
+}
+
+function showTotal(n, growing){
+  I18n.set($("#facts"), n+(growing?"+":"")+(growing ? " videos found, still reading the list" : " videos on the profile"));
+}
+
+/* ------------------------------------------------------------ events */
+
+/* one event that throws must not take the rest of its packet down with it:
+   a packet carries up to a few hundred of them, and a single odd caption used
+   to leave every row after it stuck in its previous state */
+window.receiveEvents = function(packet){
+  for(const e of packet){
+    try{ handleEvent(e); }
+    catch(err){ console.error("event", e && e.type, err); }
+  }
+};
+
+function handleEvent(e){
+    switch(e.type){
+      case "log":
+        logLine(e.text, e.level);
+        if(e.level==="err"){ banner("Something went wrong", e.text, true); addError("Extraction", e.text); }
+        break;
+
+      case "profile":
+        /* the list now streams in: the total is not known yet when the
+           profile is resolved, the progress events bring it up to date */
+        S.total=e.total||0; S.startedAt=Date.now();
+        rows.clear(); meta.clear(); visible=0; todo.rows=null;
+        $("#rows").innerHTML=""; $("#empty").classList.add("gone");
+        $("#handle").textContent="@"+e.handle;
+        showTotal(S.total, e.total==null);
+        I18n.set($("#resolved"), "Profile found");
+        const card=$("#card-progress"); card.hidden=false; card.classList.remove("hidden");
+        I18n.set($("#p-of"), e.total==null ? "done · reading the list" : "of "+e.total+" done");
+        I18n.set($("#s-queued"), S.total);
+        I18n.set($("#s-ok"), "0"); I18n.set($("#s-err"), "0");
+        I18n.set($("#s-skip"), "0"); I18n.set($("#s-running"), "0");
+        fillSquares($("#bar"), 0, true);
+        break;
+
+      case "video":
+        if(e.state==="queued" && !rows.has(e.id)){
+          todo.rows=todo.rows||document.createDocumentFragment();
+          todo.rows.appendChild(makeRow(e));
+          scheduleFrame();
+        } else {
+          updateRow(e);
+          todo.count=true; scheduleFrame();
+        }
+        break;
+
+      case "percent": {
+        const r=rows.get(e.id);
+        if(r) r._bar.style.width=e.pct+"%";
+        break;
+      }
+
+      case "progress": {
+        /* the numbers come from python and are the real ones */
+        const t=e.total||1;
+        const finished=(e.ok||0)+(e.skipped||0)+(e.errors||0);
+        const running=e.running||0;
+        const queued=(e.queued!=null) ? e.queued : Math.max(0, t-e.done-running);
+        const pct=Math.round(e.done/t*100);
+        S.total=e.total||0;
+        showTotal(S.total, !!e.listing);
+        fillSquares($("#bar"), finished/t, true);
+        I18n.set($("#p-done"), e.done);
+        /* while the list is still streaming in, a percentage would be a lie:
+           the total only grows */
+        I18n.set($("#p-of"), e.listing
+          ? "of "+e.total+" found so far"
+          : "of "+e.total+" done · "+pct+"%");
+        I18n.set($("#s-ok"), e.ok); I18n.set($("#s-err"), e.errors);
+        I18n.set($("#s-skip"), e.skipped||0);
+        I18n.set($("#s-running"), running);
+        I18n.set($("#s-queued"), queued);
+        $("#p-eta-wrap").style.visibility=e.eta?"visible":"hidden";
+        if(e.eta) I18n.set($("#p-eta"), etaText(e.eta));
+        const min=Math.round((Date.now()-S.startedAt)/60000);
+        I18n.set($("#progress-sub"), min ? min+" min so far" : "Just started");
+        break;
+      }
+
+      case "gallery":
+        cardState(e.id, e.state, e);
+        break;
+
+      case "setup":
+        /* the first start fetches the model and, with an nvidia card, its
+           libraries: gigabytes, so they get the loading squares */
+        for(const [row, bar, txt] of [["#setup","#setup-bar","#setup-t"],
+                                      ["#gal-setup","#gal-setup-bar","#gal-setup-t"]]){
+          $(row).hidden = !!e.done;
+          if(!e.done){
+            if(e.pct!=null) fillSquares($(bar), e.pct, true);
+            I18n.set($(txt), e.text);
+          }
+        }
+        if(e.error) banner(e.text, e.error, false);
+        break;
+
+      case "gal_start":
+        S.galHandle=e.handle; S.galFolder=e.folder;
+        I18n.set($("#gal-load-t"), "@"+e.handle+" · reading the list");
+        break;
+
+      case "gal_batch": {
+        queueCards(e.videos);
+        const expected = S.galExpected || 0;
+        if(expected){
+          fillSquares($("#gal-bar"), Math.min(1, e.total/expected), true);
+          I18n.set($("#gal-load-t"), e.total+" of "+expected+" videos");
+        } else {
+          // with no known total the squares cannot tell the truth: say how
+          // many came in instead of a made-up fill
+          I18n.set($("#gal-load-t"), e.total+" videos found");
+        }
+        break;
+      }
+
+      case "gal_done": {
+        fillSquares($("#gal-bar"), 1, false);
+        const d=doneCount();
+        endLoading("@"+(S.galHandle||"")+" · "+e.total+" videos · "+d+" already transcribed");
+        logLine("gallery: "+e.total+" videos"+(e.stopped?" (stopped)":""), "ok");
+        if(!e.total){ $("#gal-empty").classList.remove("gone"); }
+        break;
+      }
+
+      case "gal_error":
+        endLoading("Not loaded");
+        I18n.set($("#gal-message"),e.error);
+        banner("That profile did not open", e.error, true);
+        break;
+
+      case "finished": {
+        S.active=false; S.folder=e.folder||S.folder;
+        const total=(e.ok||0)+(e.errors||0)+(e.skipped||0)||1;
+        fillSquares($("#bar"), ((e.ok||0)+(e.skipped||0)+(e.errors||0))/total, false);
+        I18n.set($("#s-running"), "0"); I18n.set($("#s-queued"), "0");
+        $("#p-eta-wrap").style.visibility="hidden";
+        I18n.set($("#progress-sub"), e.ok
+          ? "Finished · "+e.ok+" transcribed"+(e.errors?" · "+e.errors+" failed":"")
+          : "Finished with nothing new");
+        idleMode();
+        /* a run that worked: Orbi jumps for joy */
+        if(e.ok){
+          loadHistory();
+          if(Nas.motion.enabled() && $("#v-extract").classList.contains("on")){
+            if(orbi) orbi.click();
+            Nas.celebrate($("#s-ok"));
+          }
+        }
+        break;
+      }
+    }
+}
+
+/* ------------------------------------------------------------ modes
+
+   while it works the controls go dead, and at the end ONLY the ones that were
+   alive before come back. idleMode used to re-enable everything blindly, so
+   controls that were deliberately off came back on after any extraction. */
+const CONTROLS = ".options select, .options button, .options input:not(#folder)";
+let disabledBefore = new Set();
+
+function busyMode(){
+  S.active=true;
+  $("#go").disabled=true; I18n.set($("#go-txt"), "Transcribing");
+  $("#go").hidden=true;
+  $("#stop").hidden=false; $("#stop").disabled=false;
+  $("#profile").disabled=true; $("#how-many").disabled=true;
+  disabledBefore=new Set($$(CONTROLS).filter(x=>x.disabled));
+  $$(CONTROLS).forEach(x=>x.disabled=true);
+}
+function idleMode(){
+  S.active=false;
+  $("#go").hidden=false; $("#go").disabled=false;
+  I18n.set($("#go-txt"), "Transcribe");
+  $("#stop").disabled=true; $("#stop").hidden=true; I18n.set($("#stop"), "Stop");
+  $("#profile").disabled=false; $("#how-many").disabled=false;
+  $$(CONTROLS).forEach(x=>{ x.disabled = disabledBefore.has(x); });
+  disabledBefore=new Set();
+}
+
+/* ------------------------------------------------------------ actions */
+async function startJob(){
+  const p=$("#profile").value.trim();
+  if(!p){ $("#profile").focus(); banner("The link is missing","Paste a TikTok profile link.",false); return; }
+  banner(""); S.errors=[]; $("#errpane").innerHTML="";
+  I18n.set($("#n-err"), "0");
+  busyMode();
+  /* if the call itself blows up the button stayed on "transcribing" forever */
+  let r;
+  try{ r=await window.pywebview.api.start({
+    profile:p,
+    folder:$("#folder").value,
+    model:$("#model").value||S.model,
+    language:$("#language").value,
+    ui_language:I18n.locale,
+    format:S.format,
+    timestamps:$("#sw-times").checked,
+    resume:$("#sw-resume").checked,
+    limit:$("#how-many").value?parseInt($("#how-many").value,10):null
+  }); }
+  catch(err){ r={ok:false, error:String(err)}; }
+  if(!r || !r.ok){ banner("It did not start", (r&&r.error)||"", true); idleMode(); return; }
+  const pane=$(".pane"), card=$("#card-progress");
+  pane.scrollTo({top:pane.scrollTop+card.getBoundingClientRect().top-pane.getBoundingClientRect().top,
+                 behavior:"smooth"});
+}
+
+/* ---------------------------------------------------------- gallery */
+const cards = new Map();   // id -> element
+
+function shortNumber(n){
+  if(n==null) return "";
+  /* the threshold is 999500 and not 1e6: below it, 999999 became "1000k"
+     because rounding to thousands took it to a thousand before the check */
+  return I18n.number(n,{notation:"compact",maximumFractionDigits:1});
+}
+function shortDate(ts){
+  if(!ts) return "";
+  const d=new Date(ts*1000);
+  return d.toLocaleDateString(I18n.locale,{day:"numeric",month:"short",year:"2-digit"});
+}
+
+function makeCard(v, handle){
+  const c=document.createElement("div");
+  c.className="gv"; c.dataset.id=v.id; c.dataset.f=v.done?"1":"0"; c.dataset.s="";
+  c.innerHTML=
+    '<div class="cover">'
+    /* decoding=async: without it the browser decodes the cover on the main
+       thread at the moment it has to draw it, and with 1800 cards scrolling
+       past that is 1800 stalls in the middle of the scroll */
+    + (v.cover ? '<img loading="lazy" decoding="async" referrerpolicy="no-referrer" alt="">' : '')
+    + '<span class="mark"><span data-i18n="Video transcribed">Transcribed</span></span>'
+    + '<span class="fail"><span data-i18n="Unsuccessful">Failed</span></span>'
+    + '<span class="dur-b"></span>'
+    + '<div class="over">'
+    +   '<button class="n-button n-button--secondary small transcribe"><span data-i18n="Transcribe">Transcribe</span></button>'
+    +   '<button class="n-button n-button--secondary small grab"><span data-i18n="Download file">Download file</span></button>'
+    +   '<button class="n-button n-button--secondary small open"><span data-i18n="Open on TikTok">Open on TikTok</span></button>'
+    + '</div>'
+    + '<div class="work"><span class="work-text"></span><span class="squares"></span>'
+    +   '<button class="cancel"><span data-i18n="Cancel">Cancel</span></button></div>'
+    + '</div>'
+    + '<div class="meta"><div class="t"></div><div class="s"></div></div>';
+
+  /* same as the rows: the bits that get updated are kept by the card. on a
+     gallery of 575 cards downloading and transcribing that was four dom
+     lookups per percentage update */
+  c._text  = c.querySelector(".work-text");
+  c._cover = c.querySelector(".cover");
+  c._tr    = c.querySelector(".transcribe");
+  c._grab  = c.querySelector(".grab");
+  c._squares= c.querySelector(".squares");
+
+  const img=c.querySelector("img");
+  if(img && v.cover){
+    img.addEventListener("load", ()=>img.classList.add("alive"), {once:true});
+    img.addEventListener("error", ()=>img.remove(), {once:true});
+    img.src=v.cover;
+  }
+  /* "open text" only when the file is really known: otherwise the button
+     promised to open something and instead re-queued the transcription */
+  if(v.done){ I18n.set(c._tr, v.file ? "Open text" : "Transcribe again"); S.galDone++; }
+  if(v.downloaded && v.video_file) I18n.set(c._grab, "Open file");
+  I18n.set(c.querySelector(".dur-b"), duration(v.duration));
+  c.querySelector(".t").textContent=v.title||v.id;
+  c._v={...v, handle};
+  renderCardMeta(c);
+  I18n.apply(c);
+  cards.set(String(v.id), c);
+  return c;
+}
+
+const WORK_TEXT = {
+  queued:"Waiting", queued_mp4:"Waiting for the file",
+  downloading:"Downloading", downloading_mp4:"Downloading the file", transcribing:"Transcribing"
+};
+
+function cardState(id, state, extra){
+  const c=cards.get(String(id)); if(!c) return;
+  extra = extra || {};
+  const working = !!WORK_TEXT[state];
+  c.dataset.s = working ? state : "";
+  if(state!=="error"){ c.dataset.e=""; I18n.set(c._cover,"","title"); }
+
+  if(working){
+    I18n.set(c._text, (extra.pct!=null && state!=="transcribing")
+      ? WORK_TEXT[state]+" "+extra.pct+"%"
+      : WORK_TEXT[state]);
+    if(extra.pct!=null){
+      c._cover.style.setProperty("--p", extra.pct+"%");
+      squares(c._squares, 12);
+      fillSquares(c._squares, extra.pct/100, false);
+    }
+  }
+  if(state==="done"){
+    if(c.dataset.f!=="1") S.galDone++;
+    c.dataset.f="1"; c._v.done=true; if(extra.file) c._v.file=extra.file;
+    I18n.set(c._tr, c._v.file ? "Open text" : "Transcribe again");
+    logLine("transcribed: "+(c._v.title||id).slice(0,60)
+           +(extra.words!=null?" ("+extra.words+" words)":""), "ok");
+    todo.galCount=true; scheduleFrame();
+  }
+  if(state==="downloaded"){
+    c._v.downloaded=true; c._v.video_file=extra.file;
+    I18n.set(c._grab, "Open file");
+  }
+  if(state==="error"){
+    /* the log line comes from python, which knows more: writing one here
+       too printed every failure twice */
+    c.dataset.e="1"; I18n.set(c._cover,cap(extra.message||"failed"),"title");
+  }
+}
+
+/* the transcribed count keeps itself up to date as the cards change state:
+   before, every finished video walked the whole map to recount them */
+function doneCount(){ return S.galDone; }
+function showGalleryCount(){
+  const n=cards.size;
+  I18n.set($("#n-gallery"), n||"");
+  if(n) I18n.set($("#gal-pill-txt"), "@"+(S.galHandle||"")+" · "+n+" videos · "+S.galDone+" already transcribed");
+}
+
+/* the cards go in in batches inside requestAnimationFrame: with 575 videos,
+   inserting them one at a time would block the scroll */
+let incoming=[];
+let scheduled=false;
+function queueCards(list){
+  incoming.push(...list);
+  if(scheduled) return;
+  scheduled=true;
+  requestAnimationFrame(()=>{
+    scheduled=false;
+    const group=incoming; incoming=[];
+    if(!group.length) return;
+    const frag=document.createDocumentFragment();
+    group.forEach(v=>{ if(!cards.has(String(v.id))) frag.appendChild(makeCard(v, S.galHandle)); });
+    $("#gal-grid").appendChild(frag);
+    $("#gal-empty").classList.add("gone");
+    showGalleryCount();
+  });
+}
+
+async function loadGallery(){
+  /* the button goes dead, but pressing enter in the field called this
+     function directly: two enters = two overlapping explorations, and the
+     batches of two different profiles landing in the same grid */
+  if(S.galLoading) return;
+  const p=$("#gal-profile").value.trim();
+  if(!p){ $("#gal-profile").focus(); return; }
+  S.galLoading=true;
+  I18n.set($("#gal-message"),"");
+  banner("");
+  cards.clear(); incoming=[]; S.galDone=0; $("#gal-grid").innerHTML="";
+  S.galHandle=""; S.galFolder="";
+  S.galExpected = $("#gal-how-many").value ? parseInt($("#gal-how-many").value,10) : 0;
+  $("#gal-empty").classList.add("gone");
+  $("#gal-load").classList.add("on");
+  /* the squares only when there is a total to fill: an endless wait gets
+     words, not a bar */
+  $("#gal-bar").hidden = !S.galExpected;
+  fillSquares($("#gal-bar"), 0, true);
+  I18n.set($("#gal-load-t"), "Looking for the profile");
+  $("#gal-go").disabled=true;
+  I18n.set($("#gal-pill-txt"), "Loading");
+  let r=null;
+  try{ r=await window.pywebview.api.explore(p, S.galExpected || null); }
+  catch(err){ r={ok:false, error:String(err)}; }
+  if(r && r.ok===false){
+    endLoading("Not loaded");
+    banner("That profile did not open", r.error||"", true);
+  }
+}
+
+function endLoading(text){
+  S.galLoading=false;
+  $("#gal-load").classList.remove("on");
+  $("#gal-go").disabled=false;
+  if(text) I18n.set($("#gal-pill-txt"), text);
+}
+
+$("#gal-grid").addEventListener("click", (e)=>{
+  const b=e.target.closest("button"); if(!b) return;
+  const c=b.closest(".gv"); if(!c) return;
+  const v=c._v;
+  if(b.classList.contains("cancel")) return window.pywebview.api.cancel_one(v.id);
+  if(b.classList.contains("open"))   return window.pywebview.api.open_link(v.url);
+  if(b.classList.contains("grab")){
+    if(v.downloaded && v.video_file) return window.pywebview.api.open_file(v.video_file);
+    return window.pywebview.api.download_mp4({id:v.id, url:v.url, handle:v.handle});
+  }
+  if(b.classList.contains("transcribe")){
+    if(v.file) return window.pywebview.api.open_file(v.file);
+    cardState(v.id,"queued");
+    return window.pywebview.api.transcribe_one({
+      id:v.id, url:v.url, handle:v.handle,
+      title:v.title, duration:v.duration, timestamp:v.timestamp});
+  }
+});
+$("#gal-go").addEventListener("click", loadGallery);
+$("#gal-stop").addEventListener("click", ()=>{
+  window.pywebview.api.stop_explore();
+  I18n.set($("#gal-load-t"), "Stopping");
+});
+$("#gal-profile").addEventListener("keydown",(e)=>{ if(e.key==="Enter") loadGallery(); });
+$("#gal-folder").addEventListener("click",()=>
+  window.pywebview.api.open_folder(S.galFolder||$("#folder").value));
+
+/* --- options menu --- */
+function closeMenu(){ $("#gal-menu").classList.remove("on"); $("#gal-opts").setAttribute("aria-expanded","false"); }
+$("#gal-opts").addEventListener("click",(e)=>{
+  e.stopPropagation();
+  window.AppControls?.close(); closeLanguageMenu();
+  const m=$("#gal-menu"), open=m.classList.toggle("on");
+  $("#gal-opts").setAttribute("aria-expanded", open?"true":"false");
+});
+document.addEventListener("click",(e)=>{ if(!e.target.closest(".menu-shell")) closeMenu(); });
+
+async function loadHistory(){
+  let r;
+  try{ r=await window.pywebview.api.history(); }catch(err){ r={items:[]}; }
+  const g=$("#hist-grid"); g.innerHTML="";
+  const items=r.items||[];
+  I18n.set($("#n-history"), items.length||"");
+  $("#hist-empty").classList.toggle("gone", items.length>0);
+  items.forEach(v=>{
+    const d=document.createElement("div"); d.className="tile n-card n-card--interactive";
+    const h=document.createElement("span"); h.className="n-card__label"; h.textContent=v.handle;
+    const n=document.createElement("span"); n.className="n-card__title";
+    I18n.set(n, v.videos+(v.videos===1?" video":" videos"));
+    const m=document.createElement("span"); m.className="n-card__text";
+    m.dataset.historyMeta=""; m._history=v; renderHistoryMeta(m);
+    const row=document.createElement("div"); row.className="buttons";
+    /* straight back to the profile's videos, to pick up the new ones */
+    const o=document.createElement("button"); o.className="n-button n-button--secondary small open-gal";
+    I18n.set(o, "See the videos");
+    o.addEventListener("click",()=>{
+      $("#gal-profile").value=v.handle;
+      $(".views button[data-view=gallery]").click();
+      loadGallery();
+    });
+    const b=document.createElement("button"); b.className="n-button n-button--secondary small";
+    I18n.set(b, "Open folder");
+    b.addEventListener("click",()=>window.pywebview.api.open_folder(v.path));
+    row.append(o,b);
+    d.append(h,n,m,row); g.appendChild(d);
+  });
+}
+
+async function loadAbout(){
+  const i=await window.pywebview.api.about();
+  const line=(dl,k,v)=>{ const w=document.createElement("div");
+    const a=document.createElement("dt"); I18n.set(a, k);
+    const b=document.createElement("dd"); I18n.set(b, v); w.append(a,b); dl.appendChild(w); };
+  const m=$("#i-machine"); m.innerHTML="";
+  line(m,"Python",i.python);
+  line(m,"Logical cores",String(i.cpu));
+  line(m,"Runs on",i.device||"?");
+  line(m,"Transcriptions in parallel",
+       i.transcribers + (i.threads ? " × "+i.threads+" threads" : ""));
+  line(m,"Downloads in parallel",String(i.downloaders));
+  const p=$("#i-packages"); p.innerHTML="";
+  i.packages.forEach(x=>line(p,x.name,x.v));
+  const mo=$("#i-models"); mo.innerHTML="";
+  i.models.forEach(x=>{
+    line(mo,(x.technical||x.label||x.id)+(x.selected?" (in use)":""),
+      x.downloaded ? "downloaded · "+fileSize(x.size) : "not downloaded");
+    if(x.downloaded){ const dd=mo.lastElementChild.querySelector("dd"); dd.dataset.modelSize=x.size; }
+  });
+  const pe=$("#i-paths"); pe.innerHTML="";
+  line(pe,"Program",i.app_folder);
+  line(pe,"Settings and cache",i.data_folder||"");
+  line(pe,"Transcription models",i.cache);
+  line(pe,"Transcripts",S.folder||$("#folder").value);
+}
+
+/* ------------------------------------------------------------ startup */
+function updateModelNote(){
+  const model=S.models.find(x=>x.id===$("#model").value);
+  const note=$("#model-note");note.replaceChildren();
+  if(model){
+    const name=document.createElement("bdi");name.textContent=(model.technical||model.id)+" · "+model.size;
+    const text=document.createElement("span");I18n.set(text,model.note);
+    note.append(name,document.createTextNode(" · "),text);
+    const gpu=model.gpu??S.gpu?.ok??false, device=$("#engine-device");
+    I18n.set(device,gpu?"GPU":"CPU");
+    I18n.set(device,gpu?"Uses the graphics card":"Uses the processor","title");
+  }
+}
+squares($("#bar"), 12);
+squares($("#gal-bar"), 12);
+squares($("#setup-bar"), 12);
+squares($("#gal-setup-bar"), 12);
+window.addEventListener("pywebviewready", async () => {
+  const s=await window.pywebview.api.initial_state();
+  I18n.change(s.ui_language||navigator.language);
+  applyTheme(s.theme||"");
+  Nas.configure({motion:s.motion==="off"?"off":"quiet"});
+  $("#sw-motion").checked=s.motion==="off";
+  Nas.init();
+  startOrbi();
+  S.models=s.models||[]; S.folder=s.folder; S.format=s.format||"md";
+  S.model=s.model; S.gpu=s.gpu;
+
+  const ms=$("#model");
+  S.models.forEach(x=>{ const o=document.createElement("option");
+    o.value=x.id;
+    I18n.set(o, cap(x.label));
+    I18n.set(o,x.note,"title"); ms.appendChild(o); });
+  ms.value=s.model;
+  updateModelNote();
+
+  const ll=$("#language");
+  s.languages.forEach(x=>{ const o=document.createElement("option");
+    o.value=x.id; o.textContent=languageName(x.id); ll.appendChild(o); });
+  ll.value=s.language;
+
+  $("#folder").value=s.folder; $("#folder").title=s.folder;
+  $("#how-many").value=s.limit?String(s.limit):"";
+  $("#sw-resume").checked = s.resume!==false;
+  // the same settings also live in the gallery menu
+  $$("#sw-times, #g-times").forEach(b=>b.checked=!!s.timestamps);
+  $$("#g-format button, #seg-format button").forEach(b=>b.setAttribute("aria-pressed", b.dataset.v===S.format ? "true":"false"));
+
+  if(!s.whisper){
+    banner("The transcription engine is missing",
+      "TikTok has no subtitles to download, so without whisper nothing gets transcribed.\n"
+      +"Run INSTALL.bat again: it puts back whatever is missing.", true);
+  }
+  logLine("ready. "+s.cpu+" cores available.", "info");
+  loadHistory();
+  $("#profile").focus();
+});
+
+/* ------------------------------------------------------------ listeners */
+$("#sw-motion").addEventListener("change",e=>{
+  const motion=e.target.checked?"off":"quiet";
+  Nas.configure({motion});
+  window.pywebview.api.save_settings({motion});
+});
+$("#commands").addEventListener("click",e=>{
+  const command=e.target.closest("[data-n-item]");
+  if(!command) return;
+  $("#commands").close();
+  if(command.dataset.commandView){
+    $(`.views button[data-view="${command.dataset.commandView}"]`).click();
+    if(command.dataset.commandView==="extract") $("#profile").focus();
+  }else if(command.dataset.command==="folder") $("#open-folder").click();
+  else if(command.dataset.command==="theme") $("#theme").click();
+  else if(command.dataset.command==="language") $("#ui-language").click();
+});
+$("#commands").addEventListener("click",e=>{
+  if(e.target!==e.currentTarget) return;
+  const r=e.currentTarget.getBoundingClientRect();
+  if(e.clientX<r.left || e.clientX>r.right || e.clientY<r.top || e.clientY>r.bottom) e.currentTarget.close();
+});
+document.addEventListener("keydown",e=>{
+  if((e.ctrlKey||e.metaKey)&&e.key.toLowerCase()==="k"){
+    AppControls.close(); closeMenu(); closeLanguageMenu();
+  }
+},true);
+$("#open-commands").addEventListener("click",()=>{AppControls.close();closeMenu();closeLanguageMenu();});
+$("#go").addEventListener("click", startJob);
+$("#stop").addEventListener("click", ()=>{
+  $("#stop").disabled=true; I18n.set($("#stop"), "Stopping");
+  I18n.set($("#progress-sub"), "Stopping, finishing what is in flight");
+  window.pywebview.api.stop();
+});
+$("#profile").addEventListener("keydown",(e)=>{ if(e.key==="Enter"&&!S.active) startJob(); });
+$("#browse").addEventListener("click", async ()=>{
+  const p=await window.pywebview.api.pick_folder($("#folder").value);
+  if(p){ $("#folder").value=p; $("#folder").title=p; S.folder=p;
+         window.pywebview.api.save_settings({folder:p}); loadHistory(); }
+});
+$("#open-folder").addEventListener("click", ()=>
+  window.pywebview.api.open_folder(S.folder||$("#folder").value));
+$("#clear-log").addEventListener("click", ()=>{
+  logQueue=[]; $("#logbox").innerHTML=""; I18n.set($("#log-f"), "Cleared");
+});
+$("#hist-refresh").addEventListener("click", loadHistory);
+$("#theme").addEventListener("click", ()=>{
+  const next = currentTheme()==="light" ? "dark" : "light";
+  applyTheme(next);
+  window.pywebview.api.save_settings({theme:next});
+});
+/* Gallery and whole-profile jobs share saved transcription preferences. */
+$("#language").addEventListener("change", e=>window.pywebview.api.save_settings({language:e.target.value}));
+$("#model").addEventListener("change", e=>{
+  S.model=e.target.value;
+  updateModelNote();
+  window.pywebview.api.save_settings({whisper_model:e.target.value});
+});
+$("#how-many").addEventListener("change", e=>
+  window.pywebview.api.save_settings({limit:e.target.value?parseInt(e.target.value,10):null}));
+
+/* the two choices of the file format, in the options and in the gallery
+   menu: the same setting, so they mirror each other instead of fighting */
+$$("#seg-format button, #g-format button").forEach(b=>b.addEventListener("click",()=>{
+  if(b.disabled) return;
+  S.format=b.dataset.v;
+  $$("#seg-format button, #g-format button").forEach(x=>
+    x.setAttribute("aria-pressed", x.dataset.v===S.format ? "true":"false"));
+  window.pywebview.api.save_settings({format:S.format});
+}));
+const SWITCH_KEY={"sw-resume":"resume", "sw-times":"timestamps", "g-times":"timestamps"};
+const TWINS={"sw-times":"g-times","g-times":"sw-times"};
+$$(".n-switch input").forEach(b=>b.addEventListener("change",()=>{
+  if(!SWITCH_KEY[b.id]) return;
+  const twin=TWINS[b.id];
+  if(twin && $("#"+twin)) $("#"+twin).checked=b.checked;
+  window.pywebview.api.save_settings({[SWITCH_KEY[b.id]]:b.checked});
+}));
+
+/* the filter and the search are the only two cases where all the rows have to
+   be walked. going through the frame, ten keystrokes typed quickly make one
+   pass instead of ten */
+$$(".filter").forEach(b=>b.addEventListener("click",()=>{
+  $$(".filter").forEach(x=>x.setAttribute("aria-pressed","false"));
+  b.setAttribute("aria-pressed","true"); S.filter=b.dataset.f;
+  todo.filter=true; scheduleFrame();
+}));
+$("#search").addEventListener("input",(e)=>{
+  S.search=e.target.value.trim().toLowerCase();
+  todo.filter=true; scheduleFrame();
+});
+
+$(".tabs").addEventListener("nas:tab",()=>{
+  const err = $("#tab-err").getAttribute("aria-selected")==="true";
+  $("#logbox").classList.toggle("gone", err);
+  $("#errpane").classList.toggle("on", err);
+});
+
+$$(".views button").forEach(b=>b.addEventListener("click",()=>{
+  AppControls.close(); closeLanguageMenu(); closeMenu();
+  $$(".views button").forEach(x=>x.removeAttribute("aria-current"));
+  b.setAttribute("aria-current","page");
+  $$(".view").forEach(v=>v.classList.remove("on"));
+  const view=$("#v-"+b.dataset.view);
+  view.classList.add("on");
+  Nas.motion.replay(view);
+  $(".pane").scrollTop=0;
+  if(b.dataset.view==="history") loadHistory();
+  if(b.dataset.view==="about") loadAbout();
+  if(b.dataset.view==="gallery"){
+    if(!$("#gal-profile").value && $("#profile").value) $("#gal-profile").value=$("#profile").value;
+    $("#gal-profile").focus();
+  }
+}));
+
+$("#rows").addEventListener("click",(e)=>{
+  const b=e.target.closest(".rowbtn"); if(!b) return;
+  const r=b.closest(".row"); const id=r.dataset.id;
+  const d=meta.get(id)||{};
+  if(d.file) return window.pywebview.api.open_file(d.file);
+  /* the real link of the video: it used to be built with a made-up "@i" as
+     the profile, which tiktok does not always forgive */
+  window.pywebview.api.open_link(d.url || "https://www.tiktok.com/"+$("#handle").textContent+"/video/"+id);
+});
+
+/* the square turns into two overlapping squares when it is maximized: before
+   the icon never changed, so you could not tell which state you were in */
+const IC_MAX='<svg width="10" height="10" viewBox="0 0 10 10"><rect x=".5" y=".5" width="9" height="9" stroke="currentColor" fill="none"/></svg>';
+const IC_RESTORE='<svg width="10" height="10" viewBox="0 0 10 10"><rect x=".5" y="2.5" width="7" height="7" stroke="currentColor" fill="none"/><path d="M2.5 2.5V.5h7v7h-2" stroke="currentColor" fill="none"/></svg>';
+function markWindowState(maximized){
+  const b=$("#w-max");
+  b.innerHTML = maximized ? IC_RESTORE : IC_MAX;
+  I18n.set(b,maximized ? "Restore" : "Maximize","aria-label");
+  I18n.set(b,maximized ? "Restore" : "Maximize","title");
+}
+$("#w-min").addEventListener("click",()=>window.pywebview.api.minimize());
+$("#w-max").addEventListener("click", async ()=>{
+  const r=await window.pywebview.api.maximize();
+  markWindowState(!!(r && r.maximized));
+});
+$("#w-close").addEventListener("click",()=>window.pywebview.api.close());
+/* if it gets maximized with win+up or a double click on the bar the icon has
+   to follow: only windows knows the real state, so ask it */
+let resizeTimer=null;
+window.addEventListener("resize",()=>{
+  clearTimeout(resizeTimer);
+  resizeTimer=setTimeout(async ()=>{
+    if(!window.pywebview) return;
+    try{ const s=await window.pywebview.api.window_state(); markWindowState(!!(s&&s.maximized)); }
+    catch(_){}
+  },160);
+});
+
+/* escape closes the menu and does nothing else. it used to stop the whole
+   run as well, so pressing it to clear the search box or to close a drop-down
+   threw away a two hundred video extraction without asking: stopping is the
+   stop button's job. */
+document.addEventListener("keydown",(e)=>{
+  if(e.key!=="Escape") return;
+  if($("#gal-menu").classList.contains("on")) closeMenu();
+  if(!$("#locale-menu").hidden){ closeLanguageMenu(); $("#ui-language").focus(); }
+});
+
+/* Language is a separate preference from Whisper's speech recognition. */
+function languageName(code){
+  if(code==="auto") return I18n.text("detect from the video");
+  try{ return new Intl.DisplayNames([I18n.locale],{type:"language"}).of(code)||code; }
+  catch(_){ return code; }
+}
+function renderCardMeta(c){
+  const v=c._v;
+  c.querySelector(".s").textContent=[shortDate(v.timestamp),
+    v.views!=null?I18n.text(shortNumber(v.views)+" views"):"",
+    v.likes!=null?I18n.text(shortNumber(v.likes)+" likes"):""].filter(Boolean).join(" · ");
+}
+function closeLanguageMenu(){
+  $("#locale-menu").hidden=true;
+  $("#ui-language").setAttribute("aria-expanded","false");
+}
+function renderHistoryMeta(el){
+  const v=el._history, date=new Date(String(v.when||"").replace(" ","T"));
+  I18n.set(el,fileSize(v.size)+" · "+(Number.isNaN(date.getTime())?v.when:date.toLocaleString(I18n.locale)));
+}
+function searchText(value){
+  return String(value).normalize("NFKD").replace(/\p{M}/gu,"").toLocaleLowerCase();
+}
+function filterLanguages(){
+  const term=searchText($("#locale-search").value.trim());
+  $$(".locale-option").forEach(b=>b.hidden=!b.dataset.search.includes(term));
+}
+function markLanguage(){
+  const display=new Intl.DisplayNames([I18n.locale],{type:"language"});
+  const english=new Intl.DisplayNames(["en"],{type:"language"});
+  $$(".locale-option").forEach(b=>{
+    b.setAttribute("aria-checked",String(b.dataset.locale===I18n.locale));
+    b.dataset.search=searchText(b.textContent+" "+b.dataset.locale+" "+display.of(b.dataset.locale)+" "+english.of(b.dataset.locale));
+  });
+}
+I18n.languages.forEach(language=>{
+  const b=document.createElement("button");
+  b.className="locale-option"; b.type="button"; b.dataset.locale=language.code;
+  b.dataset.search=(language.name+" "+language.code+" "+new Intl.DisplayNames(["en"],{type:"language"}).of(language.code)).toLocaleLowerCase();
+  b.setAttribute("role","radio"); b.setAttribute("aria-checked","false");
+  const name=document.createElement("span"); name.lang=language.code; name.dir="auto"; name.textContent=language.name;
+  const selected=document.createElement("span"); selected.className="selected"; selected.setAttribute("aria-hidden","true");
+  b.append(name,selected); $("#locale-options").appendChild(b);
+  b.addEventListener("click",async()=>{
+    I18n.change(language.code); closeLanguageMenu(); $("#ui-language").focus();
+    try{
+      const result=await window.pywebview.api.save_settings({ui_language:language.code});
+      if(!result?.ok) throw Error("save failed");
+      I18n.set($("#locale-status"),"Language saved");
+    }catch(_){ banner("Could not save the language. Try again.","",false); }
+  });
+});
+$("#ui-language").addEventListener("click",()=>{
+  AppControls.close(); closeMenu();
+  const open=$("#locale-menu").hidden;
+  $("#locale-menu").hidden=!open; $("#ui-language").setAttribute("aria-expanded",String(open));
+  if(open){ $("#locale-search").value=""; filterLanguages(); markLanguage(); $("#locale-search").focus(); }
+});
+$("#locale-search").addEventListener("input",filterLanguages);
+$("#locale-menu").addEventListener("keydown",e=>{
+  const buttons=$$(".locale-option").filter(b=>!b.hidden);
+  const index=buttons.indexOf(document.activeElement);
+  if(e.key==="ArrowDown"||e.key==="ArrowUp"){
+    const next=index<0?(e.key==="ArrowDown"?0:buttons.length-1):(index+(e.key==="ArrowDown"?1:-1)+buttons.length)%buttons.length;
+    e.preventDefault(); buttons[next]?.focus();
+  }else if(e.key==="Home"||e.key==="End"){
+    e.preventDefault(); buttons[e.key==="Home"?0:buttons.length-1]?.focus();
+  }else if(e.key==="Tab"){
+    const focusable=[$("#locale-search"),...buttons];
+    if(e.shiftKey && document.activeElement===focusable[0]){e.preventDefault();focusable.at(-1)?.focus();}
+    if(!e.shiftKey && document.activeElement===focusable.at(-1)){e.preventDefault();focusable[0].focus();}
+  }
+});
+document.addEventListener("click",e=>{if(!e.target.closest(".locale-shell"))closeLanguageMenu();});
+document.addEventListener("uilanguagechange",()=>{
+  markLanguage(); cards.forEach(renderCardMeta);
+  $$("[data-history-meta]").forEach(renderHistoryMeta);
+  $$("[data-model-size]").forEach(el=>I18n.set(el,"downloaded · "+fileSize(Number(el.dataset.modelSize))));
+  $$("#language option").forEach(o=>o.textContent=languageName(o.value));
+});
+I18n.change("en");
+AppControls.init();
+</script>
+</body>
+</html>
