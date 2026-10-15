@@ -24,7 +24,7 @@ Syllark turns public TikTok videos and profiles into readable transcripts. Recog
 
 ## Download
 
-Get the Windows package from [Releases](https://github.com/nas2077/syllark/releases). Unpack the complete ZIP and open **Syllark.exe**. Keep its `runtime` folder beside it. End users do not need Python or administrator rights.
+[Download Syllark for Windows](https://github.com/nas2077/syllark/releases/download/v0.1.0/Syllark-0.1.0-windows-x64.zip), or open [Releases](https://github.com/nas2077/syllark/releases) for checksums and release notes. Unpack the complete ZIP and open **Syllark.exe**. Keep its `runtime` folder beside it. End users do not need Python or administrator rights.
 
 Windows 10/11, x64, with WebView2. The executable is unsigned; SHA-256 checksums accompany published packages. See [release verification](docs/RELEASING.md) before running a downloaded build.
 
