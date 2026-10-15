@@ -1,0 +1,38 @@
+[
+  {
+    "package": "ctranslate2",
+    "version": "4.8.3",
+    "repository": "OpenNMT/CTranslate2",
+    "revision": "8d91aa08225004755360daa43deb62b35b1ed65d",
+    "file": "src/licenses/python/ctranslate2/LICENSE",
+    "url": "https://github.com/OpenNMT/CTranslate2/blob/8d91aa08225004755360daa43deb62b35b1ed65d/LICENSE",
+    "sha256": "54aa79d9fe3c09e67a16dcd95b9e88676405a6ec174efda31036983cf7672ecb"
+  },
+  {
+    "package": "flatbuffers",
+    "version": "25.12.19",
+    "repository": "google/flatbuffers",
+    "revision": "7e163021e59cca4f8e1e35a7c828b5c6b7915953",
+    "file": "src/licenses/python/flatbuffers/LICENSE",
+    "url": "https://github.com/google/flatbuffers/blob/7e163021e59cca4f8e1e35a7c828b5c6b7915953/LICENSE",
+    "sha256": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30"
+  },
+  {
+    "package": "tokenizers",
+    "version": "0.23.3",
+    "repository": "huggingface/tokenizers",
+    "revision": "301277072263fb3830eb66eec7e47adadf76f1dc",
+    "file": "src/licenses/python/tokenizers/LICENSE",
+    "url": "https://github.com/huggingface/tokenizers/blob/301277072263fb3830eb66eec7e47adadf76f1dc/LICENSE",
+    "sha256": "c71d239df91726fc519c6eb72d318ec65820627232b2f796219e87dcf35d0ab4"
+  },
+  {
+    "package": "proxy-tools",
+    "version": "0.1.0",
+    "repository": "jtushman/proxy_tools",
+    "revision": "db43f1e35d4f90a65c5a4d56d9e9af88212ec6e6",
+    "file": "src/licenses/python/proxy-tools/LICENSE.txt",
+    "url": "https://github.com/jtushman/proxy_tools/blob/db43f1e35d4f90a65c5a4d56d9e9af88212ec6e6/LICENSE.txt",
+    "sha256": "a428fb8a2e762af3eb0a6edbbb88e9b42ccfee80fd9b423958bcacf9b9abbfe4"
+  }
+]

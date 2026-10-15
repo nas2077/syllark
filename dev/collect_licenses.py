@@ -1,5 +1,6 @@
 """Collect installed application dependency versions, notices, and license texts."""
 import importlib.metadata as metadata
+import hashlib
 import json
 import re
 import shutil
@@ -55,8 +56,6 @@ def main():
         copied = []
         for file in distribution.files or []:
             parts = str(file).replace('\\','/').split('/')
-            if not any('.dist-info' in p for p in parts):
-                continue
             if not any(t in str(file).lower() for t in ('license','copying','notice')):
                 continue
             source = Path(distribution.locate_file(file))
@@ -67,6 +66,16 @@ def main():
             target.parent.mkdir(parents=True, exist_ok=True)
             shutil.copy2(source,target)
             copied.append(target.relative_to(ROOT).as_posix())
+        sources = json.loads((ROOT/'src/licenses/sources.json').read_text(encoding='utf-8'))
+        for notice in sources:
+            if notice['package'] != name:
+                continue
+            if notice['version'] != distribution.version:
+                raise ValueError('Review upstream license for updated package: ' + name)
+            target = ROOT / notice['file']
+            if hashlib.sha256(target.read_bytes()).hexdigest() != notice['sha256']:
+                raise ValueError('Upstream license text changed: ' + name)
+            copied.append(notice['file'])
         links = distribution.metadata.get_all('Project-URL', [])
         home = distribution.metadata.get('Home-page') or next((s.split(', ',1)[1] for s in links if ', ' in s), '')
         inventory.append({'name': name, 'version': distribution.version,

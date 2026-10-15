@@ -97,7 +97,9 @@
     "version": "4.8.3",
     "license": "MIT",
     "upstream": "https://opennmt.net",
-    "license_files": []
+    "license_files": [
+      "src/licenses/python/ctranslate2/LICENSE"
+    ]
   },
   {
     "name": "curl-cffi",
@@ -131,7 +133,9 @@
     "version": "25.12.19",
     "license": "Apache Software License",
     "upstream": "https://google.github.io/flatbuffers/",
-    "license_files": []
+    "license_files": [
+      "src/licenses/python/flatbuffers/LICENSE"
+    ]
   },
   {
     "name": "fsspec",
@@ -227,7 +231,10 @@
       "src/licenses/python/numpy/licenses/numpy/random/src/pcg64/LICENSE.md",
       "src/licenses/python/numpy/licenses/numpy/random/src/philox/LICENSE.md",
       "src/licenses/python/numpy/licenses/numpy/random/src/sfc64/LICENSE.md",
-      "src/licenses/python/numpy/licenses/numpy/random/src/splitmix64/LICENSE.md"
+      "src/licenses/python/numpy/licenses/numpy/random/src/splitmix64/LICENSE.md",
+      "src/licenses/python/numpy/_core/include/numpy/random/LICENSE.txt",
+      "src/licenses/python/numpy/ma/LICENSE",
+      "src/licenses/python/numpy/random/LICENSE.md"
     ]
   },
   {
@@ -235,7 +242,10 @@
     "version": "1.31.0",
     "license": "MIT License",
     "upstream": "https://onnxruntime.ai",
-    "license_files": []
+    "license_files": [
+      "src/licenses/python/onnxruntime/LICENSE",
+      "src/licenses/python/onnxruntime/ThirdPartyNotices.txt"
+    ]
   },
   {
     "name": "packaging",
@@ -262,7 +272,9 @@
     "version": "0.1.0",
     "license": "MIT License",
     "upstream": "http://github.com/jtushman/proxy_tools",
-    "license_files": []
+    "license_files": [
+      "src/licenses/python/proxy-tools/LICENSE.txt"
+    ]
   },
   {
     "name": "pycparser",
@@ -325,7 +337,9 @@
     "version": "0.23.3",
     "license": "Apache Software License",
     "upstream": "https://github.com/huggingface/tokenizers",
-    "license_files": []
+    "license_files": [
+      "src/licenses/python/tokenizers/LICENSE"
+    ]
   },
   {
     "name": "tqdm",
