@@ -56,3 +56,9 @@ __pycache__/
 /impostazioni.json
 /settings.json
 /docs/README.*.md
+
+# Cross-platform developer entry points
+!/dev/setup.py
+!/dev/build.py
+!/dev/platform_check.py
+!/dev/desktop_smoke.py

@@ -10,9 +10,37 @@ concurrency:
   group: checks-${{ github.ref }}
   cancel-in-progress: true
 jobs:
-  windows:
-    runs-on: windows-2025
-    timeout-minutes: 20
+  desktop:
+    name: ${{ matrix.target }}
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 40
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: windows-2025
+            target: windows-x64
+            python: dev/.venv/Scripts/python.exe
+            executable: dev/build/dist/Syllark/Syllark.exe
+          - os: macos-15
+            target: macos-arm64
+            python: dev/.venv/bin/python
+            executable: dev/build/dist/Syllark.app/Contents/MacOS/Syllark
+          - os: macos-15-intel
+            target: macos-x64
+            python: dev/.venv/bin/python
+            executable: dev/build/dist/Syllark.app/Contents/MacOS/Syllark
+          - os: ubuntu-24.04
+            target: linux-x64
+            python: dev/.venv/bin/python
+            executable: dev/build/dist/Syllark/Syllark
+          - os: ubuntu-24.04-arm
+            target: linux-arm64
+            python: dev/.venv/bin/python
+            executable: dev/build/dist/Syllark/Syllark
+    defaults:
+      run:
+        shell: bash
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
@@ -23,24 +51,81 @@ jobs:
             dev/requirements.txt
             dev/constraints.txt
             dev/requirements-dev.txt
-      - name: Install tested dependencies
-        run: python -m pip install -r dev/requirements.txt -c dev/constraints.txt -r dev/requirements-dev.txt
+      - name: Linux desktop libraries
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y xvfb xauth libegl1 libopengl0 libgl1 libnss3 libasound2t64 libxkbcommon-x11-0 libxcb-cursor0 libxcb-icccm4 libxcb-keysyms1 libxcb-shape0 libxcb-xinerama0 libxcb-randr0 libxcb-render-util0 libdbus-1-3
+      - name: Prepare native environment
+        run: python dev/setup.py
       - name: Compile and validate repository
         run: |
-          python -m compileall -q src dev
-          python dev/repository_check.py
+          set -e
+          ${{ matrix.python }} -m compileall -q src
+          ${{ matrix.python }} dev/repository_check.py
       - name: Offline regressions
         run: |
-          python dev/core_check.py
-          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-          python dev/access_check.py
-          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-          python dev/readability_check.py
-          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-          python dev/natural_contract_check.py
-          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-          python dev/model_matrix_check.py
-      - name: Audit Python dependencies
+          set -e
+          for check in core access readability natural_contract model_matrix platform; do
+            ${{ matrix.python }} dev/${check}_check.py
+          done
+      - name: Build and verify archive
+        run: python dev/build.py --skip-setup
+      - name: Verify frozen native runtime and desktop bridge
+        env:
+          QT_API: pyside6
         run: |
-          python -m pip install -r dev/requirements-audit.txt
-          python -m pip_audit --no-deps --disable-pip -r dev/constraints.txt --strict
+          set -e
+          if [ "$RUNNER_OS" = Linux ]; then
+            xvfb-run -a "${{ matrix.executable }}" --smoke-test dev/frozen-smoke.json --ui
+          elif [ "$RUNNER_OS" = Windows ]; then
+            # Windowed Windows executables must be waited for explicitly.
+            ${{ matrix.python }} -c "import subprocess; subprocess.run(['${{ matrix.executable }}', '--smoke-test', 'dev/frozen-smoke.json', '--ui'], check=True, timeout=90)"
+          else
+            "${{ matrix.executable }}" --smoke-test dev/frozen-smoke.json --ui
+          fi
+          ${{ matrix.python }} -c "import json; r=json.load(open('dev/frozen-smoke.json')); assert r['passed'] and r['ui_bridge']"
+      - uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6
+        with:
+          name: Syllark-${{ matrix.target }}
+          path: |
+            dev/dist/*
+            dev/frozen-smoke.json
+          if-no-files-found: error
+          retention-days: 14
+      - name: Audit Python dependencies
+        if: runner.os == 'Windows'
+        run: |
+          set -e
+          ${{ matrix.python }} -m pip install -r dev/requirements-audit.txt
+          ${{ matrix.python }} -m pip_audit --no-deps --disable-pip -r dev/constraints.txt --strict
+  linux-distros:
+    name: Linux / ${{ matrix.image }}
+    needs: desktop
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      matrix:
+        image: ['ubuntu:26.04', 'debian:13', 'fedora:44']
+    steps:
+      - uses: actions/download-artifact@37930b1c2abaa49bbe596cd826c3c89aef350131 # v7
+        with:
+          name: Syllark-linux-x64
+          path: package
+      - name: Test the same Linux package on each distro
+        shell: bash
+        run: |
+          set -e
+          tar -xzf package/dist/Syllark-0.1.0-linux-x64.tar.gz -C package
+          docker run --rm -v "$PWD/package:/package" -w /package ${{ matrix.image }} sh -ec '
+            if command -v apt-get >/dev/null; then
+              apt-get update
+              apt-get install -y xvfb xauth libegl1 libopengl0 libgl1 libnss3 libasound2t64 libxkbcommon-x11-0 libxcb-cursor0 libxcb-icccm4 libxcb-keysyms1 libxcb-shape0 libxcb-xinerama0 libxcb-randr0 libxcb-render-util0 libdbus-1-3
+            else
+              dnf install -y xorg-x11-server-Xvfb xorg-x11-xauth mesa-libEGL mesa-libGL libglvnd-opengl nss alsa-lib libxkbcommon-x11 xcb-util-cursor xcb-util-wm xcb-util-keysyms xcb-util-image xcb-util-renderutil dbus-libs
+            fi
+            # Chromium cannot sandbox a root container. This flag is CI-only.
+            QTWEBENGINE_DISABLE_SANDBOX=1 xvfb-run -a ./Syllark/Syllark --smoke-test /package/distro-smoke.json --ui
+            test -s /package/distro-smoke.json
+          '

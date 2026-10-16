@@ -32,3 +32,12 @@ remain in their output folder.
 
 Only download or transcribe material you have permission to use. Public
 availability does not grant ownership or redistribution rights.
+
+## Other desktop systems
+
+On macOS, settings, crash logs and webview storage use
+`~/Library/Application Support/Syllark`. On Linux they use
+`$XDG_DATA_HOME/syllark`, defaulting to `~/.local/share/syllark`.
+Windows keeps `%LOCALAPPDATA%/TikTok Transcriber` for compatibility.
+Model caches continue to follow the Hugging Face cache configuration.
+Application bundles can be read-only; user data is stored outside them.

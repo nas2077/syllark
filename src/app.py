@@ -11,6 +11,8 @@ import time
 import traceback
 import webbrowser
 
+import desktop_platform as desktop
+
 # where ui.html, vendor/ and the icon are: next to this file, or inside the
 # .exe's runtime folder when it runs as the built program
 HERE = getattr(sys, "_MEIPASS", None) or os.path.dirname(os.path.abspath(__file__))
@@ -30,8 +32,8 @@ def _report_crash(text):
     double clicking the shortcut simply did nothing. now it leaves a file and
     says so.
     """
-    base = os.environ.get("LOCALAPPDATA") or os.path.expanduser("~")
-    path = os.path.join(base, "TikTok Transcriber", "crash.log")
+    base = str(desktop.user_data_dir())
+    path = os.path.join(base, "crash.log")
     try:
         os.makedirs(os.path.dirname(path), exist_ok=True)
         with open(path, "a", encoding="utf-8") as f:
@@ -42,7 +44,7 @@ def _report_crash(text):
         import ctypes
         try:
             from localization import translate
-            with open(os.path.join(base, "TikTok Transcriber", "settings.json"), encoding="utf-8") as f:
+            with open(os.path.join(base, "settings.json"), encoding="utf-8") as f:
                 language = json.load(f).get("ui_language", "en")
             tr = lambda key, **params: translate(key, language, **params)
         except Exception:
@@ -264,20 +266,7 @@ core.setup_listener = lambda e: bridge.send({"type": "setup", **e})
 
 
 def keep_awake(on):
-    """
-    a profile of 500 videos takes the best part of an hour on a cpu, and a
-    laptop that goes to sleep after fifteen minutes stops it halfway. this
-    tells windows the machine is busy, for as long as the calling thread
-    needs it (the screen can still turn off).
-    """
-    try:
-        import ctypes
-
-        ES_CONTINUOUS, ES_SYSTEM_REQUIRED = 0x80000000, 0x00000001
-        ctypes.windll.kernel32.SetThreadExecutionState(
-            ES_CONTINUOUS | (ES_SYSTEM_REQUIRED if on else 0))
-    except Exception:
-        pass
+    desktop.keep_awake(on)
 
 
 def flash_taskbar():
@@ -625,22 +614,15 @@ class Api:
         saved = self._setting("ui_language", "")
         if saved:
             return normalize(saved)
-        try:
-            import ctypes
-            buffer = ctypes.create_unicode_buffer(85)
-            if ctypes.windll.kernel32.GetUserDefaultLocaleName(buffer, len(buffer)):
-                return normalize(buffer.value)
-        except Exception:
-            pass
-        return "en"
+        return normalize(desktop.system_language())
 
     def _folder(self):
         """
         the output folder, as long as it can exist on THIS computer.
 
         the settings travel with the program (the data folder sits next to
-        it), so a folder saved on another pc — another user name, a drive
-        letter that is not there — came back as is, and the first run died
+        it), so a folder saved on another pc â€” another user name, a drive
+        letter that is not there â€” came back as is, and the first run died
         trying to create C:\\Users\\somebody-else\\Documents.
         """
         path = self._setting("folder", DEFAULT_FOLDER)
@@ -685,7 +667,7 @@ class Api:
         path = path or self._folder()
         try:
             os.makedirs(path, exist_ok=True)
-            os.startfile(path)
+            desktop.open_path(path)
             return {"ok": True}
         except Exception as e:
             return {"ok": False, "error": str(e)}
@@ -698,7 +680,7 @@ class Api:
     def open_file(self, path):
         try:
             if path and os.path.exists(path):
-                os.startfile(path)
+                desktop.open_path(path)
                 return {"ok": True}
             return {"ok": False, "error": "the file is not there"}
         except Exception as e:
@@ -955,11 +937,12 @@ class Api:
         global _maximized
         try:
             _maximized = is_maximized()
+            target = not _maximized
             if _maximized:
                 window.restore()
             else:
                 window.maximize()
-            _maximized = is_maximized()
+            _maximized = target
         except Exception:
             pass
         return {"ok": True, "maximized": _maximized}
@@ -1020,6 +1003,9 @@ def read_interface():
     with open(os.path.join(HERE, "controls.js"), encoding="utf-8") as f:
         html = html.replace('<script src="controls.js"></script>',
                             "<script>\n" + f.read().replace("</script", "<\\/script") + "\n</script>")
+    if sys.platform != "win32":
+        # Native title bars keep resize, snapping and accessibility on Cocoa/Wayland.
+        html = html.replace("</head>", "<style>#w-min,#w-max,#w-close{display:none}</style></head>")
     return html
 
 
@@ -1041,6 +1027,15 @@ def dark_theme():
 
 def system_dark_theme():
     """reads from the registry whether windows is in dark mode"""
+    if sys.platform == "darwin":
+        try:
+            from Foundation import NSUserDefaults
+            return str(NSUserDefaults.standardUserDefaults().stringForKey_("AppleInterfaceStyle")) == "Dark"
+        except Exception:
+            return True
+    if sys.platform != "win32":
+        # Linux desktops expose their preference to the webview via CSS media queries.
+        return True
     try:
         import winreg
 
@@ -1112,6 +1107,8 @@ def fix_window(w):
     3. the app's icon instead of python's.
     """
     global _hwnd
+    if sys.platform != "win32":
+        return
     try:
         import ctypes
 
@@ -1153,6 +1150,8 @@ def already_running():
     window that is already open to the front and leaves.
     """
     global _instance
+    if sys.platform != "win32":
+        return desktop.unix_already_running(DATA_DIR)
     try:
         import ctypes
 
@@ -1177,7 +1176,7 @@ def hide_runtime():
     it needs. a zip does not carry the hidden flag, so the program sets it
     itself: what you see in the folder is the .exe and nothing else.
     """
-    if not core.FROZEN:
+    if sys.platform != "win32" or not core.FROZEN:
         return
     try:
         import ctypes
@@ -1214,7 +1213,7 @@ def main():
         width=1280,
         height=860,
         min_size=(1000, 680),
-        frameless=True,
+        frameless=sys.platform == "win32",
         easy_drag=False,  # drag from the title bar only, not from the whole window
         resizable=True,
         # the `fondo` of the Nas design system, so nothing flashes before the
@@ -1223,18 +1222,36 @@ def main():
         text_select=True,  # the css decides what is selectable, so the log can be copied
     )
     window.events.shown += lambda: fix_window(window)
+    def maximized():
+        global _maximized
+        _maximized = True
+    def restored():
+        global _maximized
+        _maximized = False
+    window.events.maximized += maximized
+    window.events.restored += restored
+    def closing():
+        if api.job:
+            api.job.stop.set()
+        api.stop_exploration.set()
+    window.events.closing += closing
     # The chosen model/libraries download on first use after public discovery.
     # Opening Options must not start downloading the default before the user
     # can choose a smaller model, or before an invalid link has been rejected.
     bridge.start()
     webview.start(
-        gui="edgechromium", debug=False, private_mode=False, storage_path=WEBVIEW_CACHE
+        gui=desktop.webview_gui(), debug=False, private_mode=False, storage_path=WEBVIEW_CACHE,
+        icon=(os.path.join(HERE, "syllark.png") if core.FROZEN else
+              os.path.join(core.PROGRAM_DIR, ".github", "assets", "syllark.png")) if sys.platform.startswith("linux") else None,
     )
 
 
 if __name__ == "__main__":
     try:
-        if len(sys.argv) in (4, 6) and sys.argv[1] == "--verify-runtime":
+        if len(sys.argv) in (3, 4) and sys.argv[1] == "--smoke-test":
+            from desktop_smoke import run
+            run(sys.argv[2], ui="--ui" in sys.argv[3:])
+        elif len(sys.argv) in (4, 6) and sys.argv[1] == "--verify-runtime":
             from runtime_check import run
             run(*sys.argv[2:])
         else:

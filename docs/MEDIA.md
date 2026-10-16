@@ -46,3 +46,12 @@ The resulting runtime reports LGPL version 3 or later and has no x264/x265 DLLs
 or enabled GPL configuration. 124 retained WAV recordings decode to exactly the
 same samples as the previous package. Frozen CPU/Vulkan inference and live
 download/export checks are recorded separately in the release validation notes.
+
+## macOS and Linux
+
+The Windows DLL repacking step must never run on Unix. macOS/Linux builds use
+platform-native PyAV 18.1.0 wheels and include their supplied license notices in
+`licenses/python/av/distribution/`. These are different FFmpeg builds; the Windows
+LGPL-only verification above is not a claim about Unix wheels. Inspect the exact
+wheel notices, bundled codecs and source/build-material obligations before a
+public release. Candidate builds include their own `licenses/dependencies.json`.

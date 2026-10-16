@@ -17,7 +17,9 @@ def application_distributions():
     pending = []
     for line in (ROOT/'dev/requirements.txt').read_text(encoding='utf-8').splitlines():
         if line.strip() and not line.lstrip().startswith('#'):
-            pending.append(Requirement(line))
+            requirement = Requirement(line)
+            if requirement.marker is None or requirement.marker.evaluate():
+                pending.append(requirement)
     found = {}
     extras_seen = {}
     while pending:
@@ -32,6 +34,7 @@ def application_distributions():
         for value in distribution.requires or []:
             dependency = Requirement(value)
             if dependency.marker is None or any(dependency.marker.evaluate({'extra': e}) for e in extras):
+                dependency.marker = None  # Already evaluated with the parent extras.
                 pending.append(dependency)
     return found
 
@@ -49,8 +52,8 @@ def license_name(distribution):
 
 
 def main():
-    output = ROOT/'src/licenses/python'
-    output.mkdir(parents=True, exist_ok=True)
+    output = ROOT/'dev/build/licenses'
+    shutil.copytree(ROOT/'src/licenses', output, dirs_exist_ok=True)
     inventory = []
     for name, distribution in sorted(application_distributions().items()):
         copied = []
@@ -62,10 +65,10 @@ def main():
             if not source.is_file() or source.suffix in ('.pyc','.py'):
                 continue
             relative = '/'.join(parts[1:])
-            target = output/name/relative
+            target = output/'python'/name/'distribution'/relative
             target.parent.mkdir(parents=True, exist_ok=True)
             shutil.copy2(source,target)
-            copied.append(target.relative_to(ROOT).as_posix())
+            copied.append(target.relative_to(output).as_posix())
         sources = json.loads((ROOT/'src/licenses/sources.json').read_text(encoding='utf-8'))
         for notice in sources:
             if notice['package'] != name:
@@ -73,27 +76,26 @@ def main():
             if notice['version'] != distribution.version:
                 raise ValueError('Review upstream license for updated package: ' + name)
             target = ROOT / notice['file']
-            if hashlib.sha256(target.read_bytes()).hexdigest() != notice['sha256']:
+            if notice['sha256'] not in {hashlib.sha256(data).hexdigest() for data in (target.read_bytes(), target.read_bytes().replace(b'\r\n', b'\n'))}:
                 raise ValueError('Upstream license text changed: ' + name)
-            copied.append(notice['file'])
+            copied.append(Path(notice['file']).relative_to('src/licenses').as_posix())
         links = distribution.metadata.get_all('Project-URL', [])
         home = distribution.metadata.get('Home-page') or next((s.split(', ',1)[1] for s in links if ', ' in s), '')
         inventory.append({'name': name, 'version': distribution.version,
                           'license': license_name(distribution), 'upstream': home,
                           'license_files': copied})
-    (ROOT/'docs/dependencies.json').write_bytes((json.dumps(inventory,indent=2)+'\n').encode())
-    (ROOT/'dev/constraints.txt').write_bytes(('\n'.join(f'{d["name"]}=={d["version"].split("+")[0]}' for d in inventory)+'\n').encode())
+    (output/'dependencies.json').write_bytes((json.dumps(inventory,indent=2)+'\n').encode())
     python_license = Path(sys.base_prefix)/'LICENSE.txt'
     if python_license.exists():
-        shutil.copy2(python_license,ROOT/'src/licenses/Python-LICENSE.txt')
-    rows = ['# Python dependencies', '', 'Installed application dependency closure on Windows x64. Native bundled libraries',
+        shutil.copy2(python_license,output/'Python-LICENSE.txt')
+    rows = ['# Python dependencies', '', 'Installed application dependency closure for this build platform. Native bundled libraries',
             'and downloaded model terms are described in the third-party notices.', '',
             '| Package | Tested version | License |', '|---|---|---|']
     for item in inventory:
         license = item['license'].replace('|',' / ')
         name = f'[{item["name"]}]({item["upstream"]})' if item['upstream'].startswith('https://') else item['name']
         rows.append(f'| {name} | {item["version"]} | {license} |')
-    (ROOT/'docs/DEPENDENCIES.md').write_bytes(('\n'.join(rows)+'\n').encode())
+    (output/'DEPENDENCIES.md').write_bytes(('\n'.join(rows)+'\n').encode())
     print('Collected',len(inventory),'application distributions and their supplied license texts.')
 
 
