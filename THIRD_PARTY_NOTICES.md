@@ -3,7 +3,7 @@
 The MIT license in `LICENSE` covers original Syllark code and Nas artwork.
 It does not replace the licenses of dependencies, model weights, or system
 components. Supplied license texts are retained under `src/licenses` and
-included in Windows packages.
+included in native desktop packages, alongside the build-specific dependency inventory.
 
 ## Speech recognition
 
@@ -41,6 +41,12 @@ and reproducible steps are in `dev/media.lock.json`, `dev/prepare_media.py`, and
 [media build documentation](docs/MEDIA.md). A matching upstream build archive is
 retained with the release rather than in the Git source tree.
 
+macOS/Linux use unmodified platform-native PyAV wheels. Their bundled FFmpeg
+libraries and codec licenses differ from the Windows LGPL variant described
+above. Each candidate retains the exact wheel's supplied notices under
+`licenses/python/av/distribution/`; review source/build-material requirements
+before publishing Unix releases. See [platform media notes](docs/MEDIA.md).
+
 ## Interface and runtime
 
 The Nas design system, Orbi, and Syllark mark are by Nas. Inter is licensed
@@ -49,6 +55,16 @@ BSD-3-Clause; pythonnet uses MIT. Python uses the PSF license. WebView2 and Wind
 runtime components retain Microsoft's terms. Optional NVIDIA CUDA libraries are
 downloaded separately under their own vendor licenses and are not included in
 the source or standard release archive.
+
+Linux uses dynamically linked PySide6/Qt WebEngine and QtPy. Their supplied
+license texts, including Qt/Chromium third-party notices, are collected from the
+installed distributions. Preserve the applicable LGPL/GPL notices and library
+replacement rights when distributing the exact build. macOS uses PyObjC and
+system Cocoa/WebKit; Apple's system components retain their platform terms.
+
+The build-specific `licenses/dependencies.json` and `licenses/DEPENDENCIES.md`
+describe the actual installed closure for each native archive. The source
+inventory below records the historical Windows build.
 
 See [dependency inventory](docs/DEPENDENCIES.md) and `docs/dependencies.json`
 for the tested Python dependency closure. License metadata is descriptive;
