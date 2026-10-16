@@ -33,7 +33,7 @@ packages = ["faster_whisper", "ctranslate2", "onnxruntime", "tokenizers", "av",
 if sys.platform == "win32":
     packages += ["clr_loader", "pythonnet"]
 elif sys.platform.startswith("linux"):
-    packages += ["qtpy"]
+    # Follow the renderer imports; collecting all QtPy modules pulls in unused Qt suites.
     hiddenimports += ["webview.platforms.qt", "PySide6.QtWebEngineCore",
                       "PySide6.QtWebEngineWidgets", "PySide6.QtWebChannel"]
 else:
