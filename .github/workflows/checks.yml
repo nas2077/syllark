@@ -55,7 +55,7 @@ jobs:
         if: runner.os == 'Linux'
         run: |
           sudo apt-get update
-          sudo apt-get install -y xvfb xauth libegl1 libopengl0 libgl1 libnss3 libasound2t64 libxkbcommon-x11-0 libxcb-cursor0 libxcb-icccm4 libxcb-keysyms1 libxcb-shape0 libxcb-xinerama0 libxcb-randr0 libxcb-render-util0 libdbus-1-3
+          sudo apt-get install -y xvfb xauth libegl1 libopengl0 libgl1 libnss3 libopus0 libminizip1 libpulse0 libasound2t64 libxkbcommon-x11-0 libxcb-cursor0 libxcb-icccm4 libxcb-keysyms1 libxcb-shape0 libxcb-xinerama0 libxcb-randr0 libxcb-render-util0 libdbus-1-3
       - name: Prepare native environment
         run: python dev/setup.py
       - name: Compile and validate repository
@@ -74,17 +74,7 @@ jobs:
       - name: Verify frozen native runtime and desktop bridge
         env:
           QT_API: pyside6
-        run: |
-          set -e
-          if [ "$RUNNER_OS" = Linux ]; then
-            xvfb-run -a "${{ matrix.executable }}" --smoke-test dev/frozen-smoke.json --ui
-          elif [ "$RUNNER_OS" = Windows ]; then
-            # Windowed Windows executables must be waited for explicitly.
-            ${{ matrix.python }} -c "import subprocess; subprocess.run(['${{ matrix.executable }}', '--smoke-test', 'dev/frozen-smoke.json', '--ui'], check=True, timeout=90)"
-          else
-            "${{ matrix.executable }}" --smoke-test dev/frozen-smoke.json --ui
-          fi
-          ${{ matrix.python }} -c "import json; r=json.load(open('dev/frozen-smoke.json')); assert r['passed'] and r['ui_bridge']"
+        run: ${{ matrix.python }} dev/run_smoke.py "${{ matrix.executable }}"
       - uses: actions/upload-artifact@b7c566a772e6b6bfb58ed0dc250532a479d7789f # v6
         with:
           name: Syllark-${{ matrix.target }}
@@ -121,9 +111,9 @@ jobs:
           docker run --rm -v "$PWD/package:/package" -w /package ${{ matrix.image }} sh -ec '
             if command -v apt-get >/dev/null; then
               apt-get update
-              apt-get install -y xvfb xauth libegl1 libopengl0 libgl1 libnss3 libasound2t64 libxkbcommon-x11-0 libxcb-cursor0 libxcb-icccm4 libxcb-keysyms1 libxcb-shape0 libxcb-xinerama0 libxcb-randr0 libxcb-render-util0 libdbus-1-3
+              apt-get install -y xvfb xauth libegl1 libopengl0 libgl1 libnss3 libopus0 libminizip1 libpulse0 libasound2t64 libxkbcommon-x11-0 libxcb-cursor0 libxcb-icccm4 libxcb-keysyms1 libxcb-shape0 libxcb-xinerama0 libxcb-randr0 libxcb-render-util0 libdbus-1-3
             else
-              dnf install -y xorg-x11-server-Xvfb xorg-x11-xauth mesa-libEGL mesa-libGL libglvnd-opengl nss alsa-lib libxkbcommon-x11 xcb-util-cursor xcb-util-wm xcb-util-keysyms xcb-util-image xcb-util-renderutil dbus-libs
+              dnf install -y xorg-x11-server-Xvfb xorg-x11-xauth mesa-libEGL mesa-libGL libglvnd-opengl nss opus minizip pulseaudio-libs alsa-lib libxkbcommon-x11 xcb-util-cursor xcb-util-wm xcb-util-keysyms xcb-util-image xcb-util-renderutil dbus-libs
             fi
             # Chromium cannot sandbox a root container. This flag is CI-only.
             QTWEBENGINE_DISABLE_SANDBOX=1 xvfb-run -a ./Syllark/Syllark --smoke-test /package/distro-smoke.json --ui

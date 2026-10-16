@@ -62,3 +62,4 @@ __pycache__/
 !/dev/build.py
 !/dev/platform_check.py
 !/dev/desktop_smoke.py
+!/dev/run_smoke.py

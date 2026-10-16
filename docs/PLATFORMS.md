@@ -40,13 +40,13 @@ installs QtPy and the LGPL PySide6 renderer. Linux needs a graphical desktop
 Ubuntu 24.04/26.04 and Debian 13:
 
 ```sh
-sudo apt install python3-venv libegl1 libopengl0 libgl1 libnss3 libasound2t64 libxkbcommon-x11-0 libxcb-cursor0 libxcb-icccm4 libxcb-keysyms1 libxcb-shape0 libxcb-xinerama0 libxcb-randr0 libxcb-render-util0 libdbus-1-3 xdg-utils
+sudo apt install python3-venv libegl1 libopengl0 libgl1 libnss3 libopus0 libminizip1 libpulse0 libasound2t64 libxkbcommon-x11-0 libxcb-cursor0 libxcb-icccm4 libxcb-keysyms1 libxcb-shape0 libxcb-xinerama0 libxcb-randr0 libxcb-render-util0 libdbus-1-3 xdg-utils
 ```
 
 Fedora:
 
 ```sh
-sudo dnf install mesa-libEGL mesa-libGL libglvnd-opengl nss alsa-lib libxkbcommon-x11 xcb-util-cursor xcb-util-wm xcb-util-keysyms xcb-util-image xcb-util-renderutil dbus-libs xdg-utils
+sudo dnf install mesa-libEGL mesa-libGL libglvnd-opengl nss opus minizip pulseaudio-libs alsa-lib libxkbcommon-x11 xcb-util-cursor xcb-util-wm xcb-util-keysyms xcb-util-image xcb-util-renderutil dbus-libs xdg-utils
 ```
 
 Install Python 3.12 separately if the distro default is newer. Native archive
