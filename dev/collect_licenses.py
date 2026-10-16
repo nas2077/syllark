@@ -53,6 +53,10 @@ def license_name(distribution):
 
 def main():
     output = ROOT/'dev/build/licenses'
+    if output.exists():
+        if output.is_symlink() or output.resolve().parent != (ROOT/'dev/build').resolve():
+            raise ValueError('Unsafe generated license output path')
+        shutil.rmtree(output)
     shutil.copytree(ROOT/'src/licenses', output, dirs_exist_ok=True)
     inventory = []
     for name, distribution in sorted(application_distributions().items()):
@@ -62,7 +66,9 @@ def main():
             if not any(t in str(file).lower() for t in ('license','copying','notice')):
                 continue
             source = Path(distribution.locate_file(file))
-            if not source.is_file() or source.suffix in ('.pyc','.py'):
+            if (not source.is_file() or source.suffix.lower() in
+                    {'.pyc', '.py', '.so', '.dylib', '.dll', '.pyd', '.a', '.lib', '.o', '.obj'}
+                    or any(part.endswith('.dSYM') for part in source.parts)):
                 continue
             relative = '/'.join(parts[1:])
             target = output/'python'/name/'distribution'/relative

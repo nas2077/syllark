@@ -40,6 +40,9 @@ def _report_crash(text):
             f.write(time.strftime("\n=== %Y-%m-%d %H:%M:%S ===\n") + text)
     except OSError:
         path = "(could not write the crash log)"
+    if "--smoke-test" in sys.argv:
+        print(text, file=sys.stderr, flush=True)
+        return
     try:
         import ctypes
         try:
@@ -63,6 +66,8 @@ try:
     import tiktok_core as core
 except Exception:
     _report_crash(traceback.format_exc())
+    if "--smoke-test" in sys.argv:
+        raise SystemExit(1)
     raise
 
 DEFAULT_FOLDER = core.default_output_folder()
@@ -1258,4 +1263,6 @@ if __name__ == "__main__":
             main()
     except Exception:
         _report_crash(traceback.format_exc())
+        if "--smoke-test" in sys.argv:
+            raise SystemExit(1)
         raise

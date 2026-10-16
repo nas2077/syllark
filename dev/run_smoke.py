@@ -21,9 +21,9 @@ def main():
         result = json.loads(report.read_text(encoding="utf-8"))
         assert result["passed"] and result["ui_bridge"]
     except BaseException:
-        log = desktop.user_data_dir() / "crash.log"
-        if log.is_file():
-            print(log.read_text(encoding="utf-8"), flush=True)
+        for log in (desktop.user_data_dir() / "crash.log", report.with_suffix(".progress.log")):
+            if log.is_file():
+                print(log.read_text(encoding="utf-8"), flush=True)
         raise
 
 

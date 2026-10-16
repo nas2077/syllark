@@ -14,11 +14,21 @@ from pathlib import Path
 
 
 def run(report_path, ui=False):
+    progress = Path(report_path).with_suffix(".progress.log")
+    def stage(message):
+        with progress.open("a", encoding="utf-8") as stream:
+            stream.write(message + "\n")
+    stage("Importing PyAV")
     import av
+    stage("Importing CTranslate2")
     import ctranslate2
+    stage("Importing ONNX Runtime")
     import onnxruntime
+    stage("Importing transcribe.cpp")
     import transcribe_cpp
+    stage("Importing faster-whisper audio")
     from faster_whisper.audio import decode_audio
+    stage("Querying native CPU capabilities")
 
     report = {"platform": sys.platform, "native": transcribe_cpp.native_version(),
               "cpu": transcribe_cpp.backend_available("cpu"),
@@ -36,6 +46,7 @@ def run(report_path, ui=False):
         assert len(decode_audio(str(audio))) == 16000
         report["audio_decoded"] = True
         if ui:
+            stage("Importing app for desktop smoke")
             import app
             failures = []
             completed = threading.Event()
@@ -65,10 +76,12 @@ def run(report_path, ui=False):
                     os._exit(2)
             threading.Thread(target=verify, daemon=True).start()
             threading.Thread(target=watchdog, daemon=True).start()
+            stage("Starting desktop event loop")
             app.main()
             if failures:
                 raise failures[0]
             assert report.get("ui_bridge"), "Window exited before verification"
+    stage("Smoke check completed")
     report["passed"] = True
     Path(report_path).write_text(json.dumps(report, indent=2) + "\n", encoding="utf-8")
     print("PASS: native engines, audio" + (" and desktop bridge" if ui else ""))
