@@ -67,7 +67,7 @@ def webview_gui():
         return "edgechromium"
     if sys.platform == "darwin":
         return "cocoa"
-    os.environ.setdefault("QT_API", "pyside6")
+    os.environ["QT_API"] = "pyside6"
     return "qt"
 
 
@@ -83,7 +83,7 @@ def keep_awake(on):
             return
         process = getattr(_awake, "process", None)
         if on and process is None:
-            command = (["caffeinate", "-i"] if sys.platform == "darwin" else
+            command = (["caffeinate", "-i", "-w", str(os.getpid())] if sys.platform == "darwin" else
                        ["systemd-inhibit", "--what=sleep", "--mode=block", "--who=Syllark",
                         "--why=Transcribing media", "cat"])
             _awake.process = subprocess.Popen(command, stdin=subprocess.PIPE,

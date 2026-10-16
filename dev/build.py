@@ -42,7 +42,8 @@ def main():
     destination = DEV / "dist" / f"Syllark-0.1.0-{system}-{arch}{extension}"
     folder = DEV / "build/dist" / ("Syllark.app" if system == "macos" else "Syllark")
     package(folder, destination, system=system)
-    digest = hashlib.file_digest(destination.open("rb"), "sha256").hexdigest()
+    with destination.open("rb") as stream:
+        digest = hashlib.file_digest(stream, "sha256").hexdigest()
     destination.with_name(destination.name + ".sha256").write_text(f"{digest}  {destination.name}\n", encoding="ascii")
 
 

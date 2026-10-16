@@ -77,4 +77,5 @@ coll = COLLECT(exe, a.binaries, a.datas, name="Syllark", upx=False)
 if sys.platform == "darwin":
     app = BUNDLE(coll, name="Syllark.app", icon=os.path.join(SPECPATH, "build", "Syllark.icns"),
                  bundle_identifier="io.github.nas2077.syllark",
-                 info_plist={"CFBundleShortVersionString": "0.1.0", "NSHighResolutionCapable": True})
+                 info_plist={"CFBundleShortVersionString": "0.1.0", "NSHighResolutionCapable": True,
+                             "LSMinimumSystemVersion": "15.0"})
