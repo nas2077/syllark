@@ -1,51 +1,68 @@
-# Windows releases
+# Native desktop releases
 
-The source repository contains no executable, virtual environment, model weights,
-downloaded user media, or build cache. Download runnable packages from
-[GitHub Releases](https://github.com/nas2077/syllark/releases).
+The source contains no executable, venv, model weights or user media. Published
+packages live in [Releases](https://github.com/nas2077/syllark/releases).
+The existing v0.1.0 release is Windows-only. Cross-platform candidates are built
+by Checks; they do not replace the published release.
 
-## Verify a download
+## Packages and verification
 
-Download `Syllark-0.1.0-windows-x64.zip` and `SHA256SUMS.txt` from the same release.
-In PowerShell:
+| Target | Archive | Launch after extraction |
+|---|---|---|
+| Windows x64 | `Syllark-0.1.0-windows-x64.zip` | `Syllark/Syllark.exe` |
+| Mac Apple Silicon | `Syllark-0.1.0-macos-arm64.tar.gz` | `Syllark.app` |
+| Mac Intel | `Syllark-0.1.0-macos-x64.tar.gz` | `Syllark.app` |
+| Linux x64 | `Syllark-0.1.0-linux-x64.tar.gz` | `Syllark/Syllark` |
+| Linux ARM64 | `Syllark-0.1.0-linux-arm64.tar.gz` | `Syllark/Syllark` |
 
-```powershell
-Get-FileHash .\Syllark-0.1.0-windows-x64.zip -Algorithm SHA256
-```
+Candidates retain the app version until a new release is assigned. Identify them
+by the Actions run/commit, not the old release tag. Each archive has a `.sha256`
+file. Compare PowerShell `Get-FileHash <archive> -Algorithm SHA256`, Linux
+`sha256sum -c <archive>.sha256` or macOS `shasum -a 256 -c <archive>.sha256`.
+For the old Windows release use its `SHA256SUMS.txt` instead.
 
-Compare the hash with the ZIP entry in the checksum file. Extract the entire
-archive, then open `Syllark/Syllark.exe`. Keep `runtime` beside the executable.
-The app requires Windows 10/11 x64 and Microsoft WebView2. The executable is
-unsigned. Checksums provide integrity checking, not a publisher certificate.
+Keep the complete runtime beside Windows/Linux executables. Extract Unix
+archives with `tar -xzf <archive>` to preserve permissions and symlinks. On macOS
+move the complete `.app` into Applications. Windows builds are unsigned; Mac
+builds are ad-hoc signed without Developer ID/notarization. Gatekeeper may block
+candidates. Checksums verify integrity, not publisher identity. Do not disable
+system security globally. Decide signing/notarization before public Mac releases.
 
 ## Build
 
-```powershell
-powershell -ExecutionPolicy Bypass -File dev\build.ps1 -Quiet
-```
+Install Python 3.12 and [platform prerequisites](PLATFORMS.md), then run
+`python3.12 dev/build.py` on macOS/Linux or `python dev/build.py` on Windows.
+The original Windows `dev/build.ps1` entry point remains available.
 
-The script creates/uses `dev/.venv`, installs constrained dependencies, verifies
-the media inputs, installs the LGPL PyAV variant, collects license texts, and
-builds with PyInstaller. Output goes to `dev/build/dist/Syllark`; the verified
-ZIP goes to `dev/dist`. It does not overwrite an existing installed copy.
+The Python entry point creates/uses `dev/.venv`, installs constrained dependencies,
+prepares verified LGPL media on Windows only, collects platform-specific license
+texts and dependency inventory, and runs PyInstaller. Use `--skip-setup` for an
+already prepared venv. Native folders/apps go to `dev/build/dist`; verified
+archives and checksums go to `dev/dist`. Builds do not update installed copies,
+tag commits or publish releases. Models download separately from pinned upstream
+repositories.
 
-The initial public release was built and verified locally on Windows. Its
-checksum is not a claim of reproducible byte-for-byte builds or GitHub build
-attestation. GitHub's source checks and CodeQL run separately.
+Unix archives preserve executable modes and macOS symlinks. Only build artifacts
+are packaged, excluding sibling user data. Actual licenses and inventory are
+bundled under `licenses`; wheel licenses are under `python/<package>/distribution/`.
+Collection does not rewrite source constraints or the historical Windows inventory
+in docs. Review [Unix media licensing](MEDIA.md) separately from Windows LGPL media.
 
-## Maintainer checklist
+## CI and release validation
 
-1. Update the version metadata, package name, and changelog together.
-2. Pass the offline and interactive checks in [VALIDATION.md](VALIDATION.md).
-3. Build with the pinned [media inputs](MEDIA.md), then run
-   `dev/model_binary_check.py` against the exact release executable.
-4. Exercise real speech, no speech, CPU, GPU fallback, and export paths in that
-   executable. Check that ordinary startup does not download weights.
-5. Inspect the ZIP contents, licenses, dependency inventory, and CRC verification.
-6. Attach the ZIP, SHA-256 checksums, and pinned upstream FFmpeg input archive.
-   Preserve corresponding source/build-material access documented in MEDIA.md.
-7. Publish a tag matching the reviewed source commit. Record test scope and
-   limitations; do not describe mocked cases as recognition benchmarks.
+Checks builds five candidates on native OS/architecture runners, checks frozen
+engines/audio and a real GUI bridge, then launches the Linux x64 archive on
+Ubuntu 26.04, Debian 13 and Fedora 44. Passing build artifacts last 14 days and
+require GitHub sign-in. Workflow repository permissions are read-only.
 
-The initial source tag is `v0.1.0`. Model downloads remain at their pinned upstream
-repositories and are not included in the application ZIP.
+Before publication:
+
+1. Assign the new version in metadata, archive names and changelog.
+2. Require all build/distro jobs and [regressions](VALIDATION.md) to pass.
+3. Exercise real speech/silence, CPU/GPU fallback, cancellation, folder dialogs,
+   file opening, native controls and Unicode exports on each OS. Ordinary startup
+   must not download models.
+4. Review each exact archive's native licenses and source/build materials;
+   preserve the Windows FFmpeg inputs documented in [MEDIA.md](MEDIA.md).
+5. Decide signing/notarization, attach archives/checksums, tag the reviewed source,
+   and record untested hardware/desktop combinations.

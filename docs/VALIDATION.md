@@ -75,3 +75,19 @@ claim, human-verified accuracy percentage, or promise of error-free recognition.
 
 See [model limitations](MODELS.md), [media packaging](MEDIA.md), and
 [release checks](RELEASING.md).
+
+## Cross-platform change
+
+The Checks workflow now builds Windows x64, macOS arm64/x64 and Linux x64/arm64.
+It runs offline regressions and OS-boundary tests, then loads both native engines,
+ONNX Runtime and PyAV from the frozen app, decodes generated silent WAV audio,
+and crosses the real JavaScript/Python bridge in a desktop WebView. The same
+Linux x64 archive is launched in Ubuntu 26.04, Debian 13 and Fedora 44 containers
+under Xvfb. Containers disable Chromium sandboxing only because they run as root.
+Normal application startup keeps the normal renderer sandbox settings.
+
+These are build/runtime smoke checks, not real-speech accuracy, GPU performance,
+Wayland interaction, macOS notarization or Windows 11 hardware certification.
+Candidate artifacts are available only for successful builds. Validate real model
+inference, file dialogs, exports, cancellation and native window controls on each
+OS before publishing a release. Historical Windows results above apply to 0.1.0.

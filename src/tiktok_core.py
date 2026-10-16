@@ -13,6 +13,7 @@ import threading
 import time
 import unicodedata
 import tiktok_public
+import desktop_platform as desktop
 from collections import deque
 from concurrent.futures import ThreadPoolExecutor
 from urllib.parse import urljoin, urlsplit
@@ -47,9 +48,8 @@ def data_dir():
     "dati", or in %LOCALAPPDATA% under another name): the first start moves
     them here, so no setting is lost.
     """
-    base = os.environ.get("LOCALAPPDATA") or os.path.join(
-        os.path.expanduser("~"), "AppData", "Local")
-    home = os.path.join(base, STORAGE_NAME)
+    home = str(desktop.user_data_dir())
+    base = os.path.dirname(home)
     if not os.path.isdir(home):
         for old in (os.path.join(PROGRAM_DIR, "data"), os.path.join(PROGRAM_DIR, "dati"),
                     os.path.join(PROGRAM_DIR, "src", "data"),
@@ -72,6 +72,7 @@ CUDA_DIR = os.path.join(DATA_DIR, "cuda")
 #    the dll search path the model LOADS fine and then dies on the first
 #    inference with "Library cublas64_12.dll is not found".
 _hooked_dirs = set()
+_dll_handles = []
 
 
 def _hook_cuda():
@@ -85,6 +86,8 @@ def _hook_cuda():
     except Exception:
         pass
 
+    if sys.platform != "win32":
+        return []
     hooked, seen = [], set()
     for root in roots:
         for d in sorted(glob.glob(os.path.join(root, "nvidia", "*", "bin"))):
@@ -96,7 +99,7 @@ def _hook_cuda():
             seen.add(name)
             try:
                 if d not in _hooked_dirs:
-                    os.add_dll_directory(d)
+                    _dll_handles.append(os.add_dll_directory(d))
                     # ctranslate2 loads cudnn's sub-libraries through PATH
                     os.environ["PATH"] = d + os.pathsep + os.environ.get("PATH", "")
                     _hooked_dirs.add(d)
@@ -206,23 +209,7 @@ TRANSCRIPT_RE = re.compile(r"^(\d{6,})\s*-\s*.*\.(md|txt)$", re.I)
 
 
 def documents_dir():
-    """
-    the real Documents folder.
-
-    with onedrive backup turned on (the default on a fresh windows 11) it is
-    not ~/Documents but ~/OneDrive/Documents, and writing into the first one
-    creates a second, orphaned folder nobody ever looks at.
-    """
-    try:
-        import ctypes
-
-        buf = ctypes.create_unicode_buffer(260)
-        # CSIDL_PERSONAL (5): the Documents folder, wherever the user moved it
-        if ctypes.windll.shell32.SHGetFolderPathW(None, 5, None, 0, buf) == 0 and buf.value:
-            return buf.value
-    except Exception:
-        pass
-    return os.path.join(os.path.expanduser("~"), "Documents")
+    return desktop.documents_dir()
 
 
 def default_output_folder():
@@ -928,8 +915,9 @@ def gpu_available(name=None):
     if name == "qwen3-asr":
         try:
             import transcribe_cpp
-            available = transcribe_cpp.backend_available("vulkan")
-            return available, "Vulkan" if available else "processor"
+            backend = "metal" if sys.platform == "darwin" else "vulkan"
+            available = transcribe_cpp.backend_available(backend)
+            return available, backend.title() if available else "processor"
         except Exception:
             return False, "processor"
     try:
@@ -941,7 +929,7 @@ def gpu_available(name=None):
             return False, "the card cannot handle float16"
     except Exception as e:
         return False, f"ctranslate2 does not see the gpu: {type(e).__name__}"
-    if not CUDA_DLLS:
+    if sys.platform == "win32" and not CUDA_DLLS:
         return False, "the cuda libraries are missing (nvidia-cublas-cu12, nvidia-cudnn-cu12)"
     return True, "gpu ready"
 
@@ -1009,6 +997,8 @@ def install_cuda():
     downloads the cuda libraries into CUDA_DIR and puts them on the search
     path. only the .dll files are kept out of each package.
     """
+    if sys.platform != "win32":
+        raise TikTokError("Automatic CUDA installation is only available on Windows")
     import urllib.request
     import zipfile
 
@@ -1095,7 +1085,7 @@ def ensure_ready(name=DEFAULT_MODEL, log=None):
     """
     name = model_name(name)
     with _setup_lock:
-        if name != "qwen3-asr" and not CUDA_DLLS and nvidia_card():
+        if sys.platform == "win32" and name != "qwen3-asr" and not CUDA_DLLS and nvidia_card():
             if log:
                 log("nvidia card found: fetching its libraries (about 1.2 gb, only the first time)")
             try:

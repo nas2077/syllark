@@ -137,6 +137,8 @@ class NativeContracts(unittest.TestCase):
         self.assertTrue(all(m.closed for m in runtime.models))
 
     def test_cancelled_waiter_does_not_interrupt_active_model(self):
+        # Measure lock cancellation, excluding cold native/Python import time.
+        from faster_whisper import audio, vad
         runtime = FakeRuntime()
         with patch.object(natural, "native_runtime", return_value=runtime):
             engine = natural.NaturalEngine("asr", "lid", lambda *a: None)

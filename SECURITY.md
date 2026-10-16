@@ -7,7 +7,7 @@ a public issue. Ordinary bugs belong in the issue tracker.
 
 ## Scope
 
-Security-sensitive areas include the Python/WebView2 bridge, handling of public
+Security-sensitive areas include the Python/webview bridge, handling of public
 URLs and captions, local paths, downloaded model files, and native dependencies.
 Syllark must never read browser account cookies or require TikTok sign-in.
 

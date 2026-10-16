@@ -24,9 +24,19 @@ Syllark turns public TikTok videos and profiles into readable transcripts. Recog
 
 ## Download
 
-[Download Syllark for Windows](https://github.com/nas2077/syllark/releases/download/v0.1.0/Syllark-0.1.0-windows-x64.zip), or open [Releases](https://github.com/nas2077/syllark/releases) for checksums and release notes. Unpack the complete ZIP and open **Syllark.exe**. Keep its `runtime` folder beside it. End users do not need Python or administrator rights.
+The published [v0.1.0 Windows download](https://github.com/nas2077/syllark/releases/download/v0.1.0/Syllark-0.1.0-windows-x64.zip) remains available. Extract the complete ZIP and open **Syllark.exe**, keeping `runtime` beside it.
 
-Windows 10/11, x64, with WebView2. The executable is unsigned; SHA-256 checksums accompany published packages. See [release verification](docs/RELEASING.md) before running a downloaded build.
+Cross-platform candidates are produced by [Checks](https://github.com/nas2077/syllark/actions/workflows/checks.yml). Download the artifact for your system from a successful run of this source revision, or build from source below. Artifacts last 14 days and require GitHub sign-in. New downloads will appear in [Releases](https://github.com/nas2077/syllark/releases) after release validation; the older Windows release does not include these changes.
+
+| Platform | Architecture | Package / renderer |
+|---|---|---|
+| Windows 11 | x64 | `.zip`, WebView2 |
+| macOS 15 and newer | Apple Silicon and Intel | `.app` in `.tar.gz`, system WebKit |
+| Ubuntu 24.04/26.04, Debian 13, Fedora 44 | x64; Linux ARM64 build also provided | `.tar.gz`, bundled Qt WebEngine |
+
+Recent Mint, Pop!_OS, Arch and openSUSE with glibc 2.39+ are compatibility targets; Ubuntu/Debian/Fedora have automated package checks. See [platform setup and limits](docs/PLATFORMS.md). Windows ARM can use x64 emulation; a native Windows ARM package is not provided.
+
+Packages include Python and recognition engines. Models download on first use. Windows builds are unsigned; macOS uses ad-hoc signing without notarization. SHA-256 files accompany candidate packages. See [installation and verification](docs/RELEASING.md).
 
 ## Use
 
@@ -47,7 +57,7 @@ Previously transcribed videos are skipped by default. Turn off **Skip already tr
 | Thorough | Whisper large-v3 | 3.1 GB |
 | Lightweight | Whisper small | 0.5 GB |
 
-Natural is the default for new settings and includes CPU/Vulkan support. Whisper can download NVIDIA libraries when needed and also works on CPU. Recognition can make mistakes. **Natural timestamps mark audio block starts, not individual words.** [Model details and limits](docs/MODELS.md).
+Natural is the default, using Metal on compatible Macs, Vulkan where available on Windows/Linux, and CPU fallback. Whisper uses CPU everywhere, with optional NVIDIA CUDA on Windows/Linux. Automatic CUDA library downloads are Windows-only; Linux uses separately installed CUDA 12/cuDNN 9. Recognition can make mistakes. **Natural timestamps mark audio block starts, not individual words.** [Model details and limits](docs/MODELS.md).
 
 ## Privacy
 
@@ -55,16 +65,25 @@ Syllark uses public TikTok access without sign-in, browser-session reads, or imp
 
 ## Development
 
+Use Python 3.12. Windows:
+
 ```powershell
-powershell -ExecutionPolicy Bypass -File dev\setup.ps1 -Quiet
-dev\run.bat
+python dev/setup.py
+dev\.venv\Scripts\python.exe src\app.py
 ```
 
-Development uses Python 3.12 and `dev/.venv`. See [contributing](CONTRIBUTING.md), [architecture](docs/ARCHITECTURE.md), and [validation](docs/VALIDATION.md).
+macOS/Linux (install [platform prerequisites](docs/PLATFORMS.md) first):
+
+```sh
+python3.12 dev/setup.py
+dev/.venv/bin/python src/app.py
+```
+
+Build on the target OS with `python3.12 dev/build.py` (`python dev/build.py` on Windows). See [contributing](CONTRIBUTING.md), [architecture](docs/ARCHITECTURE.md), and [validation](docs/VALIDATION.md).
 
 ## Repository and releases
 
-This repository contains source, documentation, tests, and artwork. Environments, model caches, downloaded media, build intermediates, and executables are excluded. Windows packages belong in Releases; model weights are downloaded from their upstream hosts. A small source checkout does not mean the installed models are small.
+This repository contains source, documentation, tests, and artwork. Environments, model caches, downloaded media, build intermediates, and executables are excluded. Native desktop packages belong in Releases; model weights are downloaded from their upstream hosts. A small source checkout does not mean the installed models are small.
 
 Project documentation and code use English. The app remains localized in 14 languages; translation values and multilingual fixtures retain their own languages.
 

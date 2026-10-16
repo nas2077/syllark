@@ -18,7 +18,7 @@ Saved model choices are respected. To replace previous transcripts, disable
 
 [Qwen3-ASR](https://github.com/QwenLM/Qwen3-ASR) runs through
 [transcribe.cpp](https://github.com/handy-computer/transcribe.cpp) with its bundled
-CPU/Vulkan backend. A GPU backend failure retries on CPU once. No CUDA library
+CPU/Vulkan backends on Windows/Linux and CPU/Metal on compatible Macs. A GPU backend failure retries on CPU once. No CUDA library
 installation is needed for this engine.
 
 [Silero VAD](https://github.com/snakers4/silero-vad) filters silence and short
@@ -46,8 +46,9 @@ Both model files use Apache-2.0 terms. See `src/licenses` and the dependency not
 ## Whisper
 
 The three Whisper choices use faster-whisper/CTranslate2. NVIDIA acceleration
-uses CUDA; missing supported GPU libraries can be downloaded when needed. CPU
-fallback remains available. Model snapshots and required files are pinned and
+uses CUDA. Windows can download missing GPU libraries; Linux uses compatible
+CUDA 12/cuDNN 9 installed before launch. macOS runs Whisper on CPU (Natural can
+use Metal). CPU fallback remains available. Model snapshots and required files are pinned and
 checked before inference.
 
 Recognition errors remain possible, particularly with names, weak speech,
