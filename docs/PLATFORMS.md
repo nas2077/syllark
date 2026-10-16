@@ -59,6 +59,8 @@ See [pywebview renderer requirements](https://pywebview.flowrl.com/guide/install
 Natural uses transcribe.cpp's automatic backend: Metal on compatible Macs,
 Vulkan where available on Windows/Linux, and CPU fallback. See the upstream
 [native wheel matrix](https://pypi.org/project/transcribe-cpp-native/0.4.0/).
+Mac Intel pins ONNX Runtime 1.23.2, the last available native Intel wheel; other
+targets use 1.31.0. Track upstream Intel support before future dependency updates.
 Whisper uses CTranslate2 CPU on every platform, with optional NVIDIA CUDA on
 Windows/Linux. On Linux install compatible CUDA 12/cuDNN 9 and expose their shared
 libraries to the loader **before starting Syllark**. Windows automatic CUDA

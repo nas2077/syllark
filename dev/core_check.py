@@ -276,7 +276,7 @@ try:
     check("auto detects every clip without locking a whole profile",
           len(eng.calls) == 39 and all(c is None for c in eng.calls),
           f"{eng.calls.count(None)} clips on auto")
-    check("an eta shows up", any(e.get("eta") for e in progress))
+    check("an eta shows up", any(e.get("eta") is not None for e in progress))
     everything = os.path.join(folder, "_ALL @faker.md")
     check("the collection is written", os.path.exists(everything)
           and open(everything, encoding="utf-8").read().count("\n## ") == 39)
